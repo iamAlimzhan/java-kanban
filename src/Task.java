@@ -9,9 +9,8 @@ public class Task {
     public Task(String taskName, String taskDescription, String status) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
-        this.status = status;
+        this.status = "NEW";
     }
-
     public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
