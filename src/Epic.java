@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 public class Epic extends Task{
-    private ArrayList<Subtask> epicWithSubtask = new ArrayList<>(); //не понял как сделать так чтобы хранить не ссылки а объекты субтасков
+    private ArrayList<Subtask> epicWithSubtask = new ArrayList<>();//не понял как сделать так чтобы хранить не ссылки а а идентификаторы подзадач эпика(
+
     public Epic(String taskName, String taskDescription) {
         super(taskName, taskDescription);
     }

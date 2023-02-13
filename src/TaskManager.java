@@ -9,14 +9,15 @@ public class TaskManager {
     private HashMap<Integer, Epic> epics = new HashMap<>();
 
     //получения списков задач
-    public String printTasks(){
-        return "Tasks: " + tasks;
+    public ArrayList<Task>  getTasks(){
+        return new ArrayList<>(tasks.values());
     }
-    public String printSubtasks(){
-        return "Subtasks: " + subtasks;
+    public ArrayList<Subtask> getSubtasks(){
+        return new ArrayList<>(subtasks.values());
     }
-    public String printEpics(){
-        return "Epics: " + epics;
+    public ArrayList<Epic> getEpics(){
+
+        return new ArrayList<>(epics.values());
     }
 
     //удаление задач
@@ -25,34 +26,35 @@ public class TaskManager {
     }
     public void delEpics(){
         epics.clear();
+        subtasks.clear();
     }
     public void delSubtasks(){
         subtasks.clear();
+        for (Epic epic : epics.values()) {
+            epic.getEpicWithSubtask().clear();
+            statusManager(epic);
+        }
     }
     //получение через id
-    public String receivingTasks(int id){
-        //System.out.println(tasks.get(id));
-        return "tasks by id: "+tasks.get(id);
+    public Task receivingTasks(int id){
+
+        return tasks.get(id);
     }
-    public String receivingEpics(int id){
-       // System.out.println(epics.get(id));
-        return "Epic by id: "+epics.get(id);
+    public Epic receivingEpics(int id){
+
+        return epics.get(id);
     }
-    public String receivingSubtasks(int id){
-        //System.out.println(subtasks.get(id));
-        return "Subtask id: "+subtasks.get(id);
+    public Subtask receivingSubtasks(int id){
+
+        return subtasks.get(id);
     }
    // Создание. Сам объект должен передаваться в качестве параметра.
     public void buildTask(Task task){
-       task.setId(++idTask);
-       if(task.getStatus() ==  null || task.getStatus().equals("")){
-           task.setStatus("NEW");
-       }
+        task.setId(++idTask);
         tasks.put(task.getId(),task);
     }
     public void buildEpic(Epic epic){
         epic.setId(++idTask);
-        epic.setStatus("NEW");
         epics.put(epic.getId(), epic);
     }
     public void buildSubtask(Subtask subtask){
@@ -61,7 +63,6 @@ public class TaskManager {
         subtasks.put(subtask.getId(), subtask);
         epic.addSubToEpic(subtask);
         statusManager(epic);
-        epics.put(subtask.getEpicId(), epic);
     }
 
     //обновление
@@ -72,9 +73,11 @@ public class TaskManager {
         epics.put(epic.getId(), epic);
     }
     public void updateSubtask(Subtask subtask){
-    Epic ep = epics.get(subtask.getEpicId());
-    statusManager(ep);
+        Epic ep = epics.get(subtask.getEpicId());
+        ep.getEpicWithSubtask().remove(subtasks.get(subtask.getId()));
+        ep.addSubToEpic(subtask);
         subtasks.put(subtask.getId(),subtask);
+        statusManager(ep);
     }
 
     //Удаление по id
@@ -89,18 +92,15 @@ public class TaskManager {
         epics.remove(id);
     }
     public void deleteSubtask(int id){
-    Subtask subtask = subtasks.get(id);
-        subtasks.remove(id);
+        Subtask subtask = subtasks.remove(id);
         Epic ep = epics.get(subtask.getEpicId());
         ep.getEpicWithSubtask().remove(subtask);
         statusManager(ep);
     }
     //Получение списка всех подзадач определённого эпика.
-    public String receivingSubInEpic(int idd){
-        //System.out.println(epic.getEpicWithSubtask());
-        Epic ep = epics.get(idd);
-        ep.getEpicWithSubtask();
-        return "Epic with subtasks id: "+ ep.getEpicWithSubtask();
+    public ArrayList<Subtask> receivingSubInEpic(int id){
+        Epic ep = epics.get(id);
+        return ep.getEpicWithSubtask();
     }
     private void statusManager(Epic epic){
         int newStatus = 0;

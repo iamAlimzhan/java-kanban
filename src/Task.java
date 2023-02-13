@@ -9,11 +9,12 @@ public class Task {
     public Task(String taskName, String taskDescription, String status) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
-        this.status = "NEW";
+        this.status = status;
     }
     public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
+        this.status = "NEW";
     }
 
     public String getTaskName() {
