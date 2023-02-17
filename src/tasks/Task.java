@@ -1,12 +1,16 @@
+package tasks;
+
 import java.util.Objects;
+
+import static tasks.TaskStatuses.NEW;
 
 public class Task {
     private String taskName;
     private String taskDescription;
     private int id;
-    private String status; //New; In Progress; Done
+    private TaskStatuses status; //New; In Progress; Done
 
-    public Task(String taskName, String taskDescription, String status) {
+    public Task(String taskName, String taskDescription, TaskStatuses status) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.status = status;
@@ -14,7 +18,7 @@ public class Task {
     public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
-        this.status = "NEW";
+        this.status = NEW;
     }
 
     public String getTaskName() {
@@ -41,17 +45,17 @@ public class Task {
         this.id = id;
     }
 
-    public String getStatus() {
+    public TaskStatuses getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatuses status) {
         this.status = status;
     }
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "tasks.Task{" +
                 "taskName='" + taskName + '\'' +
                 ", taskDescription='" + taskDescription + '\'' +
                 ", id=" + id +

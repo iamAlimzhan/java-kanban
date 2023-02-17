@@ -1,5 +1,7 @@
+package tasks;
+
 import java.util.ArrayList;
-public class Epic extends Task{
+public class Epic extends Task {
     private ArrayList<Subtask> epicWithSubtask = new ArrayList<>();//не понял как сделать так чтобы хранить не ссылки а а идентификаторы подзадач эпика(
 
     public Epic(String taskName, String taskDescription) {
@@ -19,7 +21,7 @@ public class Epic extends Task{
 
     @Override
     public String toString() {
-        return "Epic{" +
+        return "tasks.Epic{" +
                 "epicTaskName='" + getTaskName() + '\'' +
                 ", epicTaskDescription='" + getTaskDescription() + '\'' +
                 ", id=" + getId() +
