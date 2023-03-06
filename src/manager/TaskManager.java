@@ -5,9 +5,9 @@ import java.util.List;
 
 public interface TaskManager {
     //получения списков задач
-     ArrayList<Task> getTasks();
-     ArrayList<Subtask> getSubtasks();
-     ArrayList<Epic> getEpics();
+     List<Task> getTasks();
+     List<Subtask> getSubtasks();
+     List<Epic> getEpics();
 
     //удаление задач
     void delTasks();
@@ -32,6 +32,6 @@ public interface TaskManager {
     void deleteEpic(int id);
     void deleteSubtask(int id);
     //Получение списка всех подзадач определённого эпика.
-    ArrayList<Subtask> receivingSubInEpic(int id);
+    List<Subtask> receivingSubInEpic(int id);
     List<Task> getHistory();
 }

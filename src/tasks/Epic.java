@@ -1,8 +1,10 @@
 package tasks;
 
 import java.util.ArrayList;
+import java.util.List;
+
 public class Epic extends Task {
-    private ArrayList<Subtask> epicWithSubtask = new ArrayList<>();//не понял как сделать так чтобы хранить не ссылки а а идентификаторы подзадач эпика(
+    private List<Subtask> epicWithSubtask = new ArrayList<>();
 
     public Epic(String taskName, String taskDescription) {
         super(taskName, taskDescription);
@@ -12,10 +14,10 @@ public class Epic extends Task {
         epicWithSubtask.add(subtask);
     }
 
-    public ArrayList<Subtask> getEpicWithSubtask() {
+    public List<Subtask> getEpicWithSubtask() {
         return epicWithSubtask;
     }
-    public void setEpicWithSubtask(ArrayList<Subtask> epicWithSubtask) {
+    public void setEpicWithSubtask(List<Subtask> epicWithSubtask) {
         this.epicWithSubtask = epicWithSubtask;
     }
 
