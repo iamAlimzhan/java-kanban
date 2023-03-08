@@ -36,26 +36,26 @@ public class InMemoryTaskManager implements TaskManager {
     //удаление задач
     @Override
     public void delTasks(){
-        tasks.clear();
         for (Integer taskId : tasks.keySet()) {
             historyManager.remove(taskId);
         }
-
+        tasks.clear();
     }
     @Override
     public void delEpics(){
-        epics.clear();
-        subtasks.clear();
+
         for (Integer epicId : epics.keySet()) {
             historyManager.remove(epicId);
         }
         for (Integer subtaskId : subtasks.keySet()) {
             historyManager.remove(subtaskId);
         }
+        epics.clear();
+        subtasks.clear();
     }
     @Override
     public void delSubtasks(){
-        subtasks.clear();
+
         for (Epic epic : epics.values()) {
             epic.getEpicWithSubtask().clear();
             statusManager(epic);
@@ -63,6 +63,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Integer subtaskId : subtasks.keySet()) {
             historyManager.remove(subtaskId);
         }
+        subtasks.clear();
     }
     //получение через id
     @Override
@@ -133,6 +134,7 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.remove(id);
         for(Subtask subtask : epic.getEpicWithSubtask()){
             subtasks.remove(subtask.getId());
+            historyManager.remove(subtask.getId());
         }
         epics.remove(id);
     }

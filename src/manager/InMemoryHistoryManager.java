@@ -1,13 +1,14 @@
 package manager;
 import tasks.Task;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private Node<Task> head;
     private Node<Task> tail;
-    private Map<Integer, Node<Task>> getTask;
+    private Map<Integer, Node<Task>> map = new HashMap<>();
 
     @Override
     public List<Task> getHistory() {
@@ -25,14 +26,14 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
 
-        removeNode(getTask.get(id));
+        removeNode(map.remove(id));
     }
 
     private void linkLast(Task item) {
         final Node<Task> oldTail = tail;
         final Node<Task> node = new Node<>(oldTail, item, null);
         tail = node;
-        getTask.put(item.getId(), node);
+        map.put(item.getId(), node);
         if (oldTail == null) {
             head = node;
         }else {
