@@ -2,7 +2,7 @@ package tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 
 
 public class Epic extends Task {
@@ -39,6 +39,11 @@ public class Epic extends Task {
     }
 
     @Override
+    public TypeOfTask getType() {
+        return TypeOfTask.EPIC;
+    }
+
+    @Override
     public String toString() {
         return "tasks.Epic{" +
                 "epicTaskName='" + getTaskName() + '\'' +
@@ -48,4 +53,17 @@ public class Epic extends Task {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return Objects.equals(epicWithSubtask, epic.epicWithSubtask);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), epicWithSubtask);
+    }
 }

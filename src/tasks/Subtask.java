@@ -1,5 +1,7 @@
 package tasks;
 
+import java.util.Objects;
+
 public class Subtask extends Task {
     private int epicId;
 
@@ -21,6 +23,11 @@ public class Subtask extends Task {
     }
 
     @Override
+    public TypeOfTask getType() {
+        return TypeOfTask.SUBTASK;
+    }
+
+    @Override
     public String toStringTask() {
         return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription() + "," + getEpicId();
     }
@@ -33,5 +40,19 @@ public class Subtask extends Task {
                 ", id=" + getId() +
                 ", subtaskStatus='" + getStatus() + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Subtask subtask = (Subtask) o;
+        return epicId == subtask.epicId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), epicId);
     }
 }

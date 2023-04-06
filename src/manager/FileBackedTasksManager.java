@@ -19,47 +19,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
     /*Привет) Из за учебы сильно отстал, немного задержался с этим проектом
     не понял как сделать мейн в этом классе, поэтому закомментировал его. Можно новодку какую нибудь?)
      */
-    private File file;
-    public String nameOfFile;
+    private final File file;
+    private final static String HEADING= "type,name,status,description,epic\n";
     public FileBackedTasksManager(File file){
         this.file = file;
-        nameOfFile = "resources/data.scv";
-        file = new File(nameOfFile);
-        if(!file.isFile()){
-            try{
-                Path path = Files.createFile(Paths.get(nameOfFile));
-            } catch (IOException exp){
-                System.out.println("При создании файла произошла ошибка( " + exp.getMessage());
-            }
-        }
     }
 
     static FileBackedTasksManager  loadFromFile(File file){
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         // загрузка данных в manager
-        /*String info = "";
-        try {
-            info = Files.readString(Path.of(file.getAbsolutePath()));
-        } catch (IOException exp) {
-            throw new ManagerSaveException("File reading error(");
-        }
-
-        List<String> taskList = new ArrayList<>();
-        List<String> epicList = new ArrayList<>();
-        List<String> subtaskList = new ArrayList<>();
-        String[] lines = info.split("\n");
-        String historyLines = "";
-        boolean isTask = true;
-        boolean isTitle = true;
-        int peakId = 0, id;*/
-
         try(FileReader fr = new FileReader(file, StandardCharsets.UTF_8)) {
             BufferedReader bfr = new BufferedReader(fr);
             while (bfr.ready()){
                 String line = bfr.readLine();
                 String[] split = line.split(",");
 
-                if(!line.isEmpty()){
+                /*if(!line.isEmpty()){
                     Integer id = Integer.parseInt(split[0]);
                     TypeOfTask type = TypeOfTask.valueOf(split[1]);
                     String name = split[2];
@@ -84,6 +59,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
                         fileBackedTasksManager.historyManager.add(fileBackedTasksManager.receivingEpics(tasksID));
                         fileBackedTasksManager.historyManager.add(fileBackedTasksManager.receivingSubtasks(tasksID));
                     }
+                }*/
+                for (String elementsId : split) {
+                    int tasksID = Integer.parseInt(elementsId);
+                    fileBackedTasksManager.historyManager.add(fileBackedTasksManager.receivingTasks(tasksID));
+                    fileBackedTasksManager.historyManager.add(fileBackedTasksManager.receivingEpics(tasksID));
+                    fileBackedTasksManager.historyManager.add(fileBackedTasksManager.receivingSubtasks(tasksID));
                 }
             }
 
@@ -93,7 +74,27 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
 
         return fileBackedTasksManager;
 
+    }
 
+    private static Task fromString(String val){
+        String[] split = val.split(",");
+            Integer id = Integer.parseInt(split[0]);
+            TypeOfTask type = TypeOfTask.valueOf(split[1]);
+            String name = split[2];
+            TaskStatuses status = TaskStatuses.valueOf(split[3]);
+            String description = split[4];
+            Integer epicId = Integer.parseInt(split[5]);
+
+            switch (type){
+                case EPIC:
+                    return new Epic(id, name, description, status);
+                case SUBTASK:
+                    return new Subtask(id, name, description, status, epicId);
+                case TASK:
+                    return new Task(id, name, description, status);
+                default:
+                    return null;
+            }
     }
 
     private String toString(HistoryManager historyManager) {
@@ -101,14 +102,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         for (Task task : historyManager.getHistory()) {
             hist.add(String.valueOf(task.getId()));
         }
-        String id = String.join(",", hist);
-        return id;
+        return String.join(",", hist);
     }
-    public void save() throws ManagerSaveException {
+    private void save(){
 
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(nameOfFile , StandardCharsets.UTF_8))){
-            bw.write("type,name,status,description,epic\n");
-            Map<Integer,String> allTasksHMap= new HashMap<>();
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))){
+            bw.write(HEADING);
+            /*Map<Integer,String> allTasksHMap = new HashMap<>();
 
             Map<Integer,Task> tasksMap = getTaskHashMap();
             for (Integer id : tasksMap.keySet()) {
@@ -129,91 +129,115 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
             }
             bw.write("\n");
             bw.write(toString(this.historyManager));
-
+*/
+            bw.write(getTasks().toString());
+            System.out.println();
+            bw.write(getSubtasks().toString());
+            System.out.println();
+            bw.write(getEpics().toString());
+            System.out.println();
+            bw.write(toString((HistoryManager) historyManager.getHistory()));
         } catch (IOException exp){
-            System.out.println("При сохранении файла произошла ошибка( " + exp.getMessage());
+            throw new ManagerSaveException("При сохранении файла произошла ошибка(");
         }
-
     }
+
 
     @Override
     public void delTasks() {
         super.delTasks();
+        save();
     }
 
     @Override
     public void delEpics() {
         super.delEpics();
+        save();
     }
 
     @Override
     public void delSubtasks() {
         super.delSubtasks();
+        save();
     }
 
     @Override
     public void buildTask(Task task) {
         super.buildTask(task);
+        save();
     }
 
     @Override
     public void buildEpic(Epic epic) {
         super.buildEpic(epic);
+        save();
     }
 
     @Override
     public void buildSubtask(Subtask subtask) {
         super.buildSubtask(subtask);
+        save();
     }
 
     @Override
     public void updateTask(Task task) {
         super.updateTask(task);
+        save();
     }
 
     @Override
     public void updateEpic(Epic epic) {
         super.updateEpic(epic);
+        save();
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
+        save();
     }
 
     @Override
     public void deleteTask(int id) {
         super.deleteTask(id);
+        save();
     }
 
     @Override
     public void deleteEpic(int id) {
         super.deleteEpic(id);
+        save();
     }
 
     @Override
     public void deleteSubtask(int id) {
         super.deleteSubtask(id);
+        save();
     }
 
     @Override
     public Epic receivingEpics(int id) {
-        return super.receivingEpics(id);
+        Epic epic = super.receivingEpics(id);
+        save();
+        return epic;
     }
 
     @Override
     public Subtask receivingSubtasks(int id) {
-        return super.receivingSubtasks(id);
+        Subtask subtask = super.receivingSubtasks(id);
+        save();
+        return subtask;
     }
 
     @Override
     public List<Subtask> receivingSubInEpic(int id) {
-        return super.receivingSubInEpic(id);
+        List<Subtask> subtask = super.receivingSubInEpic(id);
+        save();
+        return subtask;
     }
 
-    /*public static void main(String[] args){
-        File files = new File("src/resources/Tasks.csv");
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
+    public static void main(String[] args){
+        InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
         Task taskFirst = new Task ("Сходить в школу", "Отсидеть уроки", NEW);
         Task taskSecond = new Task("Поехать на работу", "Сесть в автобус", DONE);
         Epic epicFirst = new Epic("Уборка дома", "Убраться в своей комнате, убраться на кухне, убраться в гостиной");
@@ -239,6 +263,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager{
         System.out.println(inMemoryTaskManager.getHistory());
         inMemoryTaskManager.deleteEpic(3);
         System.out.println(inMemoryTaskManager.getHistory());
-    }*/
+    }
+
 }
 

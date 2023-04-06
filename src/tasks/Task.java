@@ -9,7 +9,8 @@ public class Task {
     private String taskDescription;
     private int id;
     private TaskStatuses status = NEW; //New; In Progress; Done
-    private TypeOfTask typeOfTask = TypeOfTask.TASK;
+    //private TypeOfTask typeOfTask = TypeOfTask.TASK;
+    public TypeOfTask getType() { return TypeOfTask.TASK; }
 
     public Task(String taskName, String taskDescription, TaskStatuses status) {
         this.taskName = taskName;
@@ -61,12 +62,9 @@ public class Task {
     }
 
     public TypeOfTask getTypeOfTask() {
-        return typeOfTask;
+        return getType();
     }
 
-    public void setTypeOfTask(TypeOfTask typeOfTask) {
-        this.typeOfTask = typeOfTask;
-    }
 
     public String toStringTask(){
         return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription();

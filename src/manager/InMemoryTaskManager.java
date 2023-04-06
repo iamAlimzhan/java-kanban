@@ -21,16 +21,11 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getTasks(){
         return new ArrayList<>(tasks.values());
     }
-    public Map<Integer,Task> getTaskHashMap(){
-        return tasks;
-    }
+
     @Override
     public List<Subtask> getSubtasks(){
         return new ArrayList<>(subtasks.values());
 
-    }
-    public Map<Integer,Subtask> getSubtaskMap(){
-        return subtasks;
     }
 
     @Override
@@ -38,10 +33,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         return new ArrayList<>(epics.values());
     }
-    public Map<Integer, Epic> getEpicHashMap(){
-        return epics;
-    }
-
 
     //удаление задач
     @Override
@@ -196,6 +187,4 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
     }
-
-
 }
