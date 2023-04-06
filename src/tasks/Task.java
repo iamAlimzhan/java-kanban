@@ -8,7 +8,8 @@ public class Task {
     private String taskName;
     private String taskDescription;
     private int id;
-    private TaskStatuses status; //New; In Progress; Done
+    private TaskStatuses status = NEW; //New; In Progress; Done
+    private TypeOfTask typeOfTask = TypeOfTask.TASK;
 
     public Task(String taskName, String taskDescription, TaskStatuses status) {
         this.taskName = taskName;
@@ -18,7 +19,13 @@ public class Task {
     public Task(String taskName, String taskDescription) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
-        this.status = NEW;
+    }
+
+    public Task(Integer id, String taskName, String taskDescription, TaskStatuses status) {
+        this.id = id;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.status = status;
     }
 
     public String getTaskName() {
@@ -51,6 +58,18 @@ public class Task {
 
     public void setStatus(TaskStatuses status) {
         this.status = status;
+    }
+
+    public TypeOfTask getTypeOfTask() {
+        return typeOfTask;
+    }
+
+    public void setTypeOfTask(TypeOfTask typeOfTask) {
+        this.typeOfTask = typeOfTask;
+    }
+
+    public String toStringTask(){
+        return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription();
     }
 
     @Override

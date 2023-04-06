@@ -14,22 +14,32 @@ public class InMemoryTaskManager implements TaskManager {
     private Map<Integer, Task> tasks = new HashMap<>();
     private Map<Integer, Subtask> subtasks = new HashMap<>();
     private Map<Integer, Epic> epics = new HashMap<>();
-    private HistoryManager historyManager = Managers.getDefaultHistory();
+    protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     //получения списков задач
     @Override
     public List<Task> getTasks(){
-
         return new ArrayList<>(tasks.values());
+    }
+    public Map<Integer,Task> getTaskHashMap(){
+        return tasks;
     }
     @Override
     public List<Subtask> getSubtasks(){
         return new ArrayList<>(subtasks.values());
+
     }
+    public Map<Integer,Subtask> getSubtaskMap(){
+        return subtasks;
+    }
+
     @Override
     public List<Epic> getEpics(){
 
         return new ArrayList<>(epics.values());
+    }
+    public Map<Integer, Epic> getEpicHashMap(){
+        return epics;
     }
 
 
@@ -186,5 +196,6 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
     }
+
 
 }

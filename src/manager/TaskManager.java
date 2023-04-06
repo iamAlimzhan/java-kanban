@@ -34,4 +34,5 @@ public interface TaskManager {
     //Получение списка всех подзадач определённого эпика.
     List<Subtask> receivingSubInEpic(int id);
     List<Task> getHistory();
+
 }
