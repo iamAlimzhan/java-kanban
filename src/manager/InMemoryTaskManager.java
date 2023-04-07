@@ -8,13 +8,13 @@ import java.util.Map;
 import static tasks.TaskStatuses.*;
 
 
-public class InMemoryTaskManager implements TaskManager {
-    private int idTask = 0;
+    public class InMemoryTaskManager implements TaskManager {
+        protected int idTask = 0;
 
-    private Map<Integer, Task> tasks = new HashMap<>();
-    private Map<Integer, Subtask> subtasks = new HashMap<>();
-    private Map<Integer, Epic> epics = new HashMap<>();
-    protected HistoryManager historyManager = Managers.getDefaultHistory();
+        protected Map<Integer, Task> tasks = new HashMap<>();
+        protected Map<Integer, Subtask> subtasks = new HashMap<>();
+        protected Map<Integer, Epic> epics = new HashMap<>();
+        protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     //получения списков задач
     @Override
