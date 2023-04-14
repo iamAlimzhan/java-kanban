@@ -14,6 +14,11 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    public Subtask(int id,TypeOfTask typeOfTask,String taskName,TaskStatuses status, String taskDescription, int epicId) {
+        super(id,typeOfTask,taskName,status,taskDescription);
+        this.epicId = epicId;
+    }
+
     public int getEpicId() {
         return epicId;
     }
@@ -27,8 +32,19 @@ public class Subtask extends Task {
         return TypeOfTask.SUBTASK;
     }
 
-    @Override
-    public String toStringTask() {
+
+    /*@Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        return sb.append(getId()).append(',')
+                .append(TypeOfTask.SUBTASK).append(',')
+                .append(getTaskName()).append(',')
+                .append(getTaskDescription()).append(',')
+                .append(getStatus()).append(',')
+                .append(epicId)
+                .toString();
+    }*/
+    public String toStringForFile(){
         return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription() + "," + getEpicId();
     }
 
@@ -41,6 +57,18 @@ public class Subtask extends Task {
                 ", subtaskStatus='" + getStatus() + '\'' +
                 '}';
     }
+
+    /*@Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        return sb.append(getId()).append(',')
+                .append(TypeOfTask.SUBTASK).append(',')
+                .append(getTaskName()).append(',')
+                .append(getTaskDescription()).append(',')
+                .append(getStatus()).append(',')
+                .append(epicId)
+                .toString();
+    }*/
 
     @Override
     public boolean equals(Object o) {

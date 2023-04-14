@@ -9,7 +9,7 @@ public class Task {
     private String taskDescription;
     private int id;
     private TaskStatuses status = NEW; //New; In Progress; Done
-
+    private TypeOfTask typeOfTask;
 
     public Task(String taskName, String taskDescription, TaskStatuses status) {
         this.taskName = taskName;
@@ -26,6 +26,14 @@ public class Task {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.status = status;
+    }
+
+    public Task(int id,TypeOfTask typeOfTask,String taskName,TaskStatuses status, String taskDescription) {
+        this.id = id;
+        this.typeOfTask = typeOfTask;
+        this.taskName = taskName;
+        this.status = status;
+        this.taskDescription = taskDescription;
     }
 
     public String getTaskName() {
@@ -64,10 +72,8 @@ public class Task {
     public TypeOfTask getTypeOfTask() {
         return getType();
     }
-
-
-    public String toStringTask(){
-        return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription();
+    public void setTypeOfTask(TypeOfTask typeOfTask){
+        this.typeOfTask = typeOfTask;
     }
 
     @Override
@@ -79,6 +85,21 @@ public class Task {
                 ", status='" + status + '\'' +
                 '}';
     }
+    public String toStringFile(){
+        return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription();
+    }
+
+/*@Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        return sb.append(getId()).append(',')
+                .append(TypeOfTask.TASK).append(',')
+                .append(getTaskName()).append(',')
+                .append(getTaskDescription()).append(',')
+                .append(getStatus()).append(',')
+                .toString();
+    }*/
+
 
     @Override
     public boolean equals(Object o) {

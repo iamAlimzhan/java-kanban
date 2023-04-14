@@ -3,7 +3,8 @@ package tasks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+import tasks.Subtask;
+import tasks.Task;
 
 public class Epic extends Task {
     private List<Subtask> epicWithSubtask = new ArrayList<>();
@@ -17,14 +18,8 @@ public class Epic extends Task {
 
     }
 
-    public Epic(String taskName, String taskDescription, List<Subtask> epicWithSubtask) {
-        super(taskName, taskDescription);
-        this.epicWithSubtask = epicWithSubtask;
-    }
-
-    public Epic(Integer id, String taskName, String taskDescription, TaskStatuses status, List<Subtask> epicWithSubtask) {
-        super(id, taskName, taskDescription, status);
-        this.epicWithSubtask = epicWithSubtask;
+    public Epic(int id,TypeOfTask typeOfTask,String taskName,TaskStatuses status, String taskDescription) {
+        super(id,typeOfTask,taskName,status,taskDescription);
     }
 
     public void addSubToEpic(Subtask subtask){
@@ -52,6 +47,20 @@ public class Epic extends Task {
                 ", epicStatus='" + getStatus() + '\'' +
                 '}';
     }
+    public String toStringFile(){
+        return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription();
+    }
+
+   /* @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        return sb.append(getId()).append(',')
+                .append(TypeOfTask.EPIC).append(',')
+                .append(getTaskName()).append(',')
+                .append(getTaskDescription()).append(',')
+                .append(getStatus()).append(',')
+                .toString();
+    }*/
 
     @Override
     public boolean equals(Object o) {

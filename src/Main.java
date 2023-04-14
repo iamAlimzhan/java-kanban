@@ -9,7 +9,7 @@ import static tasks.TaskStatuses.NEW;
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager inMemoryTaskManager = Managers.getDefault();
+        /*TaskManager inMemoryTaskManager = Managers.getDefault();
         Task taskFirst = new Task ("Сходить в школу", "Отсидеть уроки", NEW);
         Task taskSecond = new Task("Поехать на работу", "Сесть в автобус", DONE);
         Epic epicFirst = new Epic("Уборка дома", "Убраться в своей комнате, убраться на кухне, убраться в гостиной");
@@ -34,6 +34,6 @@ public class Main {
         inMemoryTaskManager.deleteTask(1);
         System.out.println(inMemoryTaskManager.getHistory());
         inMemoryTaskManager.deleteEpic(3);
-        System.out.println(inMemoryTaskManager.getHistory());
+        System.out.println(inMemoryTaskManager.getHistory());*/
     }
 }
