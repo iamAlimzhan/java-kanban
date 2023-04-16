@@ -1,5 +1,7 @@
 package manager;
+
 import tasks.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,23 +9,13 @@ import java.util.Map;
 
 import static tasks.TaskStatuses.*;
 
+ public class InMemoryTaskManager implements TaskManager {
+     protected int idTask = 0;
+     protected Map<Integer, Task> tasks = new HashMap<>();
+     protected Map<Integer, Subtask> subtasks = new HashMap<>();
+     protected Map<Integer, Epic> epics = new HashMap<>();
+     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
-    public class InMemoryTaskManager implements TaskManager {
-        protected int idTask = 0;
-        protected Map<Integer, Task> tasks = new HashMap<>();
-        protected Map<Integer, Subtask> subtasks = new HashMap<>();
-        protected Map<Integer, Epic> epics = new HashMap<>();
-        protected HistoryManager historyManager = Managers.getDefaultHistory();
-
-        public Map<Integer, Task> getTaskMap(){
-            return tasks;
-        }
-        public Map<Integer, Epic> getEpicMap(){
-            return epics;
-        }
-        public Map<Integer, Subtask> getSubMap(){
-            return subtasks;
-        }
 
     //получения списков задач
     @Override
@@ -34,12 +26,10 @@ import static tasks.TaskStatuses.*;
     @Override
     public List<Subtask> getSubtasks(){
         return new ArrayList<>(subtasks.values());
-
     }
 
     @Override
     public List<Epic> getEpics(){
-
         return new ArrayList<>(epics.values());
     }
 
@@ -97,72 +87,22 @@ import static tasks.TaskStatuses.*;
     // Создание. Сам объект должен передаваться в качестве параметра.
     @Override
     public void buildTask(Task task) {
-        /*task.setId(++idTask);
-        tasks.put(task.getId(),task);*/
-        if (!tasks.isEmpty()) {
-            for (Task val : tasks.values()) {
-                if (val.getId() > idTask) {
-                    idTask = val.getId();
-                }
-            }
-            task.setId(++idTask);
-            task.setStatus(TaskStatuses.NEW);
-            task.setTypeOfTask(TypeOfTask.TASK);
-            tasks.put(task.getId(), task);
-        } else {
-            task.setId(++idTask);
-            task.setStatus(TaskStatuses.NEW);
-            task.setTypeOfTask(TypeOfTask.TASK);
-            tasks.put(task.getId(), task);
-        }
+        task.setId(++idTask);
+        tasks.put(task.getId(),task);
     }
     @Override
     public void buildEpic(Epic epic){
-        if(!epics.isEmpty()){
-            for (Epic val : epics.values()) {
-                if (val.getId() >idTask) {
-
-                    idTask = val.getId();
-
-                }
-            }
-            epic.setId(++ idTask);
-            epic.setStatus(TaskStatuses.NEW);
-            epic.setTypeOfTask(TypeOfTask.EPIC);
-            epics.put(epic.getId(), epic);
-        } else {
-            epic.setId(++ idTask);
-            epic.setStatus(TaskStatuses.NEW);
-            epic.setTypeOfTask(TypeOfTask.EPIC);
-            epics.put(epic.getId(), epic);
-        }
+        epic.setId(++idTask);
+        epics.put(epic.getId(), epic);
     }
     @Override
     public void buildSubtask(Subtask subtask){
-        if(!subtasks.isEmpty()){
-            for (Subtask val : subtasks.values()) {
-                if(val.getId() > idTask){
-                    idTask = val.getId();
-                }
-            }
-            Epic epic = epics.get(subtask.getEpicId());
-            subtask.setId(++ idTask);
-            subtask.setTypeOfTask(TypeOfTask.SUBTASK);
-            subtasks.put(subtask.getId(), subtask);
-            epic.addSubToEpic(subtask);
-            statusManager(epic);
-            epics.put(subtask.getEpicId(), epic);
-        } else {
-
-            Epic epic = epics.get(subtask.getEpicId());
-            subtask.setId(++ idTask);
-            subtask.setTypeOfTask(TypeOfTask.SUBTASK);
-            subtasks.put(subtask.getId(), subtask);
-            epic.addSubToEpic(subtask);
-            statusManager(epic);
-            epics.put(subtask.getEpicId(), epic);
-            }
-        }
+        Epic epic = epics.get(subtask.getEpicId());
+        subtask.setId(++idTask);
+        subtasks.put(subtask.getId(), subtask);
+        epic.addSubToEpic(subtask);
+        statusManager(epic);
+    }
 
 
     //обновление
