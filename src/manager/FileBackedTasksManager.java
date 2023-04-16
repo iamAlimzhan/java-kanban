@@ -37,11 +37,6 @@ import static tasks.TaskStatuses.NEW;
         }
         return fileManager;
     }
-
-
-
-
-
     private static void fromStringHis(String line, FileBackedTasksManager fileBackedTasksManager) {
         String[] fields = line.split(",");
         for (String field : fields) {
@@ -88,7 +83,6 @@ import static tasks.TaskStatuses.NEW;
      }
 
     private void save() {
-        //STRING_BUILDER = new StringBuilder("id,type,name,status,description,epic\n");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             sb.append(HEADER);
