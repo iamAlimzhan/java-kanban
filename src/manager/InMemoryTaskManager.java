@@ -7,20 +7,18 @@ import java.util.List;
 import java.util.Map;
 import static tasks.TaskStatuses.*;
 
- public class InMemoryTaskManager implements TaskManager {
-     protected int idTask = 0;
-     protected Map<Integer, Task> tasks = new HashMap<>();
-     protected Map<Integer, Subtask> subtasks = new HashMap<>();
-     protected Map<Integer, Epic> epics = new HashMap<>();
-     protected HistoryManager historyManager = Managers.getDefaultHistory();
-
+public class InMemoryTaskManager implements TaskManager {
+    protected int idTask = 0;
+    protected Map<Integer, Task> tasks = new HashMap<>();
+    protected Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected Map<Integer, Epic> epics = new HashMap<>();
+    protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     //получения списков задач
     @Override
     public List<Task> getTasks(){
         return new ArrayList<>(tasks.values());
     }
-
     @Override
     public List<Subtask> getSubtasks(){
         return new ArrayList<>(subtasks.values());
@@ -41,7 +39,6 @@ import static tasks.TaskStatuses.*;
     }
     @Override
     public void delEpics(){
-
         for (Integer epicId : epics.keySet()) {
             historyManager.remove(epicId);
         }
@@ -53,7 +50,6 @@ import static tasks.TaskStatuses.*;
     }
     @Override
     public void delSubtasks(){
-
         for (Epic epic : epics.values()) {
             epic.getEpicWithSubtask().clear();
             statusManager(epic);
@@ -162,7 +158,6 @@ import static tasks.TaskStatuses.*;
         List<Subtask> subInEpic = epic.getEpicWithSubtask();
         if(subInEpic.isEmpty()){
             epic.setStatus(NEW);
-
         }else{
             for (Subtask subtask : subInEpic) {
                 if(subtask.getStatus().equals(NEW)){
@@ -176,7 +171,6 @@ import static tasks.TaskStatuses.*;
             }
             if (newStatus == subInEpic.size()){
                 epic.setStatus(NEW);
-
             } else if (done == subInEpic.size()){
                 epic.setStatus(DONE);
             } else {
