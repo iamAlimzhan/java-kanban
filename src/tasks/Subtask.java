@@ -1,21 +1,17 @@
 package tasks;
 
+import java.time.Instant;
 import java.util.Objects;
 
-public class Subtask extends Task {
+public class Subtask extends MainTask {
     private int epicId;
-
-    public Subtask(String taskName, String taskDescription, TaskStatuses status, int epicId) {
-        super(taskName, taskDescription, status);
-        this.epicId = epicId;
-    }
-    public Subtask(Integer id, String taskName, String taskDescription, TaskStatuses status, int epicId) {
-        super(id, taskName, taskDescription, status);
+    public Subtask(String taskName, String taskDescription, int id, TaskStatuses status, int epicId, Instant startTime, Long duration) {
+        super(taskName, taskDescription, id, status, TypeOfTask.SUBTASK, startTime, duration);
         this.epicId = epicId;
     }
 
-    public Subtask(int id,TypeOfTask typeOfTask,String taskName,TaskStatuses status, String taskDescription, int epicId) {
-        super(id,typeOfTask,taskName,status,taskDescription);
+    public Subtask(String taskName, String taskDescription, int id, TaskStatuses status, int epicId) {
+        super(taskName, taskDescription, id, status);
         this.epicId = epicId;
     }
 
@@ -27,60 +23,4 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
-    @Override
-    public TypeOfTask getType() {
-        return TypeOfTask.SUBTASK;
-    }
-
-
-    /*@Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        return sb.append(getId()).append(',')
-                .append(TypeOfTask.SUBTASK).append(',')
-                .append(getTaskName()).append(',')
-                .append(getTaskDescription()).append(',')
-                .append(getStatus()).append(',')
-                .append(epicId)
-                .toString();
-    }*/
-    public String toStringForFile(){
-        return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription() + "," + getEpicId();
-    }
-
-    @Override
-    public String toString() {
-        return "tasks.Subtask{" +
-                "subtaskTaskName='" + getTaskName() + '\'' +
-                ", subtaskTaskDescription='" + getTaskDescription() + '\'' +
-                ", id=" + getId() +
-                ", subtaskStatus='" + getStatus() + '\'' +
-                '}';
-    }
-
-    /*@Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        return sb.append(getId()).append(',')
-                .append(TypeOfTask.SUBTASK).append(',')
-                .append(getTaskName()).append(',')
-                .append(getTaskDescription()).append(',')
-                .append(getStatus()).append(',')
-                .append(epicId)
-                .toString();
-    }*/
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Subtask subtask = (Subtask) o;
-        return epicId == subtask.epicId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), epicId);
-    }
 }

@@ -1,29 +1,27 @@
 package tasks;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import tasks.Subtask;
 import tasks.Task;
 
-public class Epic extends Task {
+public class Epic extends MainTask {
     private List<Subtask> epicWithSubtask = new ArrayList<>();
 
-    public Epic(String taskName, String taskDescription) {
-        super(taskName, taskDescription);
+    public Epic(String taskName, String taskDescription, int id, TaskStatuses status, Instant startTime, Long duration) {
+        super(taskName, taskDescription, id, status, TypeOfTask.EPIC,startTime,duration);
     }
 
-    public Epic(Integer id, String taskName, String taskDescription, TaskStatuses status) {
-        super(id, taskName, taskDescription, status);
-
-    }
-
-    public Epic(int id,TypeOfTask typeOfTask,String taskName,TaskStatuses status, String taskDescription) {
-        super(id,typeOfTask,taskName,status,taskDescription);
+    public Epic(String taskName, String taskDescription, int id, TaskStatuses status) {
+        super(taskName, taskDescription, id, status);
     }
 
     public void addSubToEpic(Subtask subtask){
         epicWithSubtask.add(subtask);
+        setStatus();
+        setEpicTime();
     }
 
     public List<Subtask> getEpicWithSubtask() {
@@ -31,6 +29,61 @@ public class Epic extends Task {
     }
     public void setEpicWithSubtask(List<Subtask> epicWithSubtask) {
         this.epicWithSubtask = epicWithSubtask;
+        setStatus();
+        setEpicTime();
+    }
+    public void addEpicWithSubtask(Subtask subtask){
+        epicWithSubtask.add(subtask);
+        setStatus();
+        setEpicTime();
+    }
+    public void removeEpicWithSubtask(Subtask subtask){
+        epicWithSubtask.remove(subtask);
+        setStatus();
+        setEpicTime();
+    }
+    private void setEpicTime() {
+        if (epicWithSubtask != null) {
+            Instant startTime = Instant.MAX;
+            Instant endTime = Instant.MIN;
+            for (Subtask subtask : epicWithSubtask) {
+                if (subtask != null) { // Добавьте проверку на null
+                    if (subtask.getStartTime() != null && subtask.getStartTime().isAfter(startTime)) {
+                        startTime = subtask.getStartTime();
+                    }
+                    if (subtask.getEndTime() != null && subtask.getEndTime().isBefore(endTime)) {
+                        endTime = subtask.getEndTime();
+                    }
+                }
+            }
+            if (startTime != Instant.MAX) {
+                setStartTime(startTime);
+            }
+            if (endTime != Instant.MIN) {
+                setDuration(endTime.toEpochMilli() - startTime.toEpochMilli());
+            }
+        }
+    }
+
+
+
+    private void setStatus(){
+        int flag = 0;
+        for (Subtask subtask : epicWithSubtask) {
+            if(subtask.getStatus() == TaskStatuses.DONE){
+                flag++;
+            } else if (subtask.getStatus() == TaskStatuses.IN_PROGRESS){
+                super.setStatus(TaskStatuses.IN_PROGRESS);
+                return;
+            }
+        }
+        if(flag == 0){
+            super.setStatus(TaskStatuses.NEW);
+        } else if(flag == epicWithSubtask.size()){
+            super.setStatus(TaskStatuses.DONE);
+        } else {
+            super.setStatus(TaskStatuses.IN_PROGRESS);
+        }
     }
 
     @Override
@@ -41,26 +94,9 @@ public class Epic extends Task {
     @Override
     public String toString() {
         return "tasks.Epic{" +
-                "epicTaskName='" + getTaskName() + '\'' +
-                ", epicTaskDescription='" + getTaskDescription() + '\'' +
-                ", id=" + getId() +
-                ", epicStatus='" + getStatus() + '\'' +
+                super.toString() +
                 '}';
     }
-    public String toStringFile(){
-        return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription();
-    }
-
-   /* @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        return sb.append(getId()).append(',')
-                .append(TypeOfTask.EPIC).append(',')
-                .append(getTaskName()).append(',')
-                .append(getTaskDescription()).append(',')
-                .append(getStatus()).append(',')
-                .toString();
-    }*/
 
     @Override
     public boolean equals(Object o) {
@@ -68,7 +104,7 @@ public class Epic extends Task {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return Objects.equals(epicWithSubtask, epic.epicWithSubtask);
+        return Objects.equals(epicWithSubtask, epic.epicWithSubtask) && super.equals(o);
     }
 
     @Override

@@ -15,7 +15,7 @@ import static tasks.TaskStatuses.NEW;
     public FileBackedTasksManager(File file) {
         this.file = file;
     }
-    static FileBackedTasksManager loadFromFile(File file) {
+    public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileManager = new FileBackedTasksManager(file);
         try (BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
             br.readLine(); // пропускаем первую строку с заголовком
@@ -59,15 +59,15 @@ import static tasks.TaskStatuses.NEW;
         String description = lines[4];
         switch (type) {
             case TASK:
-                fileBackedTasksManager.tasks.put(id, new Task(id, type, name, status, description));
+                fileBackedTasksManager.tasks.put(id, new Task(name, description, id, status));
                 break;
              case EPIC:
-                 Epic epic = new Epic(id, type, name, status, description);
+                 Epic epic = new Epic(name, description, id, status);
                  fileBackedTasksManager.epics.put(id, epic);
                  break;
              case SUBTASK:
                  int epicId = Integer.parseInt(lines[5]);
-                 Subtask subtask = new Subtask(id, type, name, status, description, epicId);
+                 Subtask subtask = new Subtask(name, description, id, status, epicId);
                  fileBackedTasksManager.subtasks.put(id, subtask);
                  Epic ep = fileBackedTasksManager.epics.get(epicId);
                  if (ep != null) {
@@ -79,7 +79,7 @@ import static tasks.TaskStatuses.NEW;
         }
     }
 
-    private void save() {
+     public void save() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             sb.append(HEADER);
@@ -93,10 +93,10 @@ import static tasks.TaskStatuses.NEW;
             for (Subtask subtask : getSubtasks()) {
                 toString(subtask, sb);
             }
-            List<Task> tasksHist = getHistory();
+            List<MainTask> tasksHist = getHistory();
             sb.append("\n");
             if (!tasksHist.isEmpty()) {
-                for (Task taskHis : tasksHist) {
+                for (MainTask taskHis : tasksHist) {
                     sb.append(String.format("%s,", taskHis.getId()));
                 }
                 sb.deleteCharAt(sb.length() - 1);
@@ -106,7 +106,7 @@ import static tasks.TaskStatuses.NEW;
             throw new ManagerSaveException("При сохранении файла произошла ошибка(");
         }
     }
-    private void toString(Task task, StringBuilder sb) {
+    private void toString(MainTask task, StringBuilder sb) {
         sb.append(task.getId()).append(",").append(task.getTypeOfTask()).append(",").append(task.getTaskName())
                 .append(",").append(task.getStatus()).append(",").append(task.getTaskDescription());
         if (task.getTypeOfTask() == TypeOfTask.SUBTASK) {
@@ -209,7 +209,7 @@ import static tasks.TaskStatuses.NEW;
          return task;
      }
 
-     public static void main(String[] args){
+     /*public static void main(String[] args){
         System.out.println("Поехали!");
         File file = new File(("data.csv"));
         FileBackedTasksManager manager = new FileBackedTasksManager(file);
@@ -251,6 +251,5 @@ import static tasks.TaskStatuses.NEW;
         System.out.println(readManager.epics);
         System.out.println(manager.getHistory());
         System.out.println(readManager.getHistory());
-
-    }
+    }*/
 }

@@ -1,116 +1,16 @@
 package tasks;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import static tasks.TaskStatuses.NEW;
 
-public class Task {
-    private String taskName;
-    private String taskDescription;
-    private int id;
-    private TaskStatuses status = NEW; //New; In Progress; Done
-    private TypeOfTask typeOfTask;
-
-    public Task(String taskName, String taskDescription, TaskStatuses status) {
-        this.taskName = taskName;
-        this.taskDescription = taskDescription;
-        this.status = status;
-    }
-    public Task(String taskName, String taskDescription) {
-        this.taskName = taskName;
-        this.taskDescription = taskDescription;
+public class Task extends MainTask{
+    public Task(String taskName, String taskDescription, int id, TaskStatuses status, Instant startTime, Long duration) {
+        super(taskName, taskDescription, id, status, TypeOfTask.TASK, startTime, duration);
     }
 
-    public Task(Integer id, String taskName, String taskDescription, TaskStatuses status) {
-        this.id = id;
-        this.taskName = taskName;
-        this.taskDescription = taskDescription;
-        this.status = status;
-    }
-
-    public Task(int id,TypeOfTask typeOfTask,String taskName,TaskStatuses status, String taskDescription) {
-        this.id = id;
-        this.typeOfTask = typeOfTask;
-        this.taskName = taskName;
-        this.status = status;
-        this.taskDescription = taskDescription;
-    }
-
-    public String getTaskName() {
-        return taskName;
-    }
-
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
-    }
-
-    public String getTaskDescription() {
-        return taskDescription;
-    }
-
-    public void setTaskDescription(String taskDescription) {
-        this.taskDescription = taskDescription;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public TaskStatuses getStatus() {
-        return status;
-    }
-    public TypeOfTask getType() { return TypeOfTask.TASK; }
-
-    public void setStatus(TaskStatuses status) {
-        this.status = status;
-    }
-
-    public TypeOfTask getTypeOfTask() {
-        return getType();
-    }
-    public void setTypeOfTask(TypeOfTask typeOfTask){
-        this.typeOfTask = typeOfTask;
-    }
-
-    @Override
-    public String toString() {
-        return "tasks.Task{" +
-                "taskName='" + taskName + '\'' +
-                ", taskDescription='" + taskDescription + '\'' +
-                ", id=" + id +
-                ", status='" + status + '\'' +
-                '}';
-    }
-    public String toStringFile(){
-        return getId() + "," + getTypeOfTask() + "," + getTaskName() + "," + getStatus() + "," + getTaskDescription();
-    }
-
-/*@Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        return sb.append(getId()).append(',')
-                .append(TypeOfTask.TASK).append(',')
-                .append(getTaskName()).append(',')
-                .append(getTaskDescription()).append(',')
-                .append(getStatus()).append(',')
-                .toString();
-    }*/
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return id == task.id && taskName.equals(task.taskName) && taskDescription.equals(task.taskDescription) && status.equals(task.status);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(taskName, taskDescription, id, status);
+    public Task(String taskName, String taskDescription, int id, TaskStatuses status) {
+        super(taskName, taskDescription, id, status);
     }
 }

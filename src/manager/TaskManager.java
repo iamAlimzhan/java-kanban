@@ -33,6 +33,10 @@ public interface TaskManager {
     void deleteSubtask(int id);
     //Получение списка всех подзадач определённого эпика.
     List<Subtask> receivingSubInEpic(int id);
-    List<Task> getHistory();
+    List<MainTask> getHistory();
+
+    default boolean getPrioritizedTasks(MainTask mainTask) {
+        return false;
+    }
 
 }

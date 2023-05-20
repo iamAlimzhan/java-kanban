@@ -1,4 +1,6 @@
 package manager;
+import com.sun.tools.javac.Main;
+import tasks.MainTask;
 import tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,21 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private Node<Task> head;
-    private Node<Task> tail;
-    private final Map<Integer, Node<Task>> nodes = new HashMap<>();
+    private Node<MainTask> head;
+    private Node<MainTask> tail;
+    private final Map<Integer, Node<MainTask>> nodes = new HashMap<>();
 
     @Override
-    public List<Task> getHistory() {
+    public List<MainTask> getHistory() {
 
         return getTasks();
     }
 
     @Override
-    public void add(Task task) {
-        if (task != null) {
-            remove(task.getId());
-            linkLast(task);
+    public void add(MainTask mainTask) {
+        if (mainTask != null) {
+            remove(mainTask.getId());
+            linkLast(mainTask);
         }
     }
 
@@ -30,9 +32,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         removeNode(nodes.remove(id));
     }
 
-    private void linkLast(Task item) {
-        final Node<Task> oldTail = tail;
-        final Node<Task> node = new Node<>(oldTail, item, null);
+    private void linkLast(MainTask item) {
+        final Node<MainTask> oldTail = tail;
+        final Node<MainTask> node = new Node<>(oldTail, item, null);
         tail = node;
         nodes.put(item.getId(), node);
         if (oldTail == null) {
@@ -42,9 +44,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    private List<Task> getTasks() {
-        Node<Task> actualNode = head;
-        List<Task> tasks = new ArrayList<>();
+    private List<MainTask> getTasks() {
+        Node<MainTask> actualNode = head;
+        List<MainTask> tasks = new ArrayList<>();
         while (actualNode != null) {
 
             tasks.add(actualNode.info);
@@ -55,22 +57,22 @@ public class InMemoryHistoryManager implements HistoryManager {
         return tasks;
     }
 
-    private static class Node<Task> {
-        public Task info;
-        public Node<Task> prev;
-        public Node<Task> next;
+    private static class Node<MainTask> {
+        public tasks.MainTask info;
+        public Node<tasks.MainTask> prev;
+        public Node<tasks.MainTask> next;
 
-        public Node(Node<Task> prev, Task data, Node<Task> next) {
+        public Node(Node<tasks.MainTask> prev, tasks.MainTask data, Node<tasks.MainTask> next) {
             this.info = data;
             this.next = next;
             this.prev = prev;
         }
     }
-    private void removeNode(Node<Task> node) {
+    private void removeNode(Node<MainTask> node) {
 
         if (node != null) {
-            final Node<Task> next = node.next;
-            final Node<Task> prev = node.prev;
+            final Node<MainTask> next = node.next;
+            final Node<MainTask> prev = node.prev;
             node.info = null;
 
             if (head == node && tail == node) {
