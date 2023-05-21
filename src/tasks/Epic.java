@@ -9,9 +9,9 @@ import tasks.Task;
 
 public class Epic extends MainTask {
     private List<Subtask> epicWithSubtask = new ArrayList<>();
-
-    public Epic(String taskName, String taskDescription, int id, TaskStatuses status, Instant startTime, Long duration) {
-        super(taskName, taskDescription, id, status, TypeOfTask.EPIC,startTime,duration);
+    private Instant endTime;
+    public Epic(String taskName, String taskDescription, int id, TaskStatuses status, Instant startTime, long duration) {
+        super(taskName, taskDescription, id, status,startTime,duration);
     }
 
     public Epic(String taskName, String taskDescription, int id, TaskStatuses status) {
@@ -32,11 +32,6 @@ public class Epic extends MainTask {
         setStatus();
         setEpicTime();
     }
-    public void addEpicWithSubtask(Subtask subtask){
-        epicWithSubtask.add(subtask);
-        setStatus();
-        setEpicTime();
-    }
     public void removeEpicWithSubtask(Subtask subtask){
         epicWithSubtask.remove(subtask);
         setStatus();
@@ -44,26 +39,26 @@ public class Epic extends MainTask {
     }
     private void setEpicTime() {
         if (epicWithSubtask != null) {
-            Instant startTime = Instant.MAX;
-            Instant endTime = Instant.MIN;
+            Instant startTime = null;
+            Instant endTime = null;
+            long duration = 0;
+
             for (Subtask subtask : epicWithSubtask) {
-                if (subtask != null) { // Добавьте проверку на null
-                    if (subtask.getStartTime() != null && subtask.getStartTime().isAfter(startTime)) {
-                        startTime = subtask.getStartTime();
+                    Instant subtaskStartTime = subtask.getStartTime();
+                    Instant subtaskEndTime = subtask.getEndTime();
+
+                    if (subtaskStartTime != null && (startTime == null || subtaskStartTime.isAfter(startTime))) {
+                        startTime = subtaskStartTime;
                     }
-                    if (subtask.getEndTime() != null && subtask.getEndTime().isBefore(endTime)) {
-                        endTime = subtask.getEndTime();
+                    if (subtaskEndTime != null && (endTime == null || subtaskEndTime.isBefore(endTime))) {
+                        endTime = subtaskEndTime;
                     }
-                }
-            }
-            if (startTime != Instant.MAX) {
-                setStartTime(startTime);
-            }
-            if (endTime != Instant.MIN) {
-                setDuration(endTime.toEpochMilli() - startTime.toEpochMilli());
+
+                    duration += subtask.getDuration() != null ? subtask.getDuration() : 0;
             }
         }
     }
+
 
 
 

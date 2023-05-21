@@ -35,7 +35,7 @@ public interface TaskManager {
     List<Subtask> receivingSubInEpic(int id);
     List<MainTask> getHistory();
 
-    default boolean getPrioritizedTasks(MainTask mainTask) {
+    default boolean getPrioritizedTasks(MainTask mainTask) { // я не совсем понял как сделать метод, с помощью которого мы будем получать задачи в отсортированном порядке
         return false;
     }
 

@@ -1,6 +1,5 @@
 package tasks;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -11,16 +10,15 @@ public abstract class MainTask {
     private String taskDescription;
     private int id;
     private TaskStatuses status = NEW; //New; In Progress; Done
-    private TypeOfTask typeOfTask;
-    private Long duration;
+    //private TypeOfTask typeOfTask;
+    private long duration;
     private Instant startTime;
 
-    public MainTask(String taskName, String taskDescription, int id, TaskStatuses status, TypeOfTask typeOfTask, Instant startTime, Long duration) {
+    public MainTask(String taskName, String taskDescription, int id, TaskStatuses status, Instant startTime, long duration) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.id = id;
         this.status = status;
-        this.typeOfTask = typeOfTask;
         this.startTime = startTime;
         this.duration = duration;
     }
@@ -58,7 +56,7 @@ public abstract class MainTask {
     public TaskStatuses getStatus() {
         return status;
     }
-    public TypeOfTask getType() { return TypeOfTask.TASK; }
+    public abstract TypeOfTask getType();
 
     public void setStatus(TaskStatuses status) {
         this.status = status;
@@ -66,9 +64,6 @@ public abstract class MainTask {
 
     public TypeOfTask getTypeOfTask() {
         return getType();
-    }
-    public void setTypeOfTask(TypeOfTask typeOfTask){
-        this.typeOfTask = typeOfTask;
     }
 
     public Long getDuration() {
@@ -87,7 +82,7 @@ public abstract class MainTask {
         this.startTime = startTime;
     }
     public Instant getEndTime() {
-        if(duration == null){
+        if(startTime == null){
             return null;
         }
         return startTime.plusMillis(duration);
