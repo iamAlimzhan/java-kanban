@@ -10,7 +10,6 @@ public abstract class MainTask {
     private String taskDescription;
     private int id;
     private TaskStatuses status = NEW; //New; In Progress; Done
-    //private TypeOfTask typeOfTask;
     private long duration;
     private Instant startTime;
 
@@ -66,11 +65,11 @@ public abstract class MainTask {
         return getType();
     }
 
-    public Long getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(Long duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
@@ -101,10 +100,12 @@ public abstract class MainTask {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MainTask mainTask = (MainTask) o;
-        return id == mainTask.id && taskName.equals(mainTask.taskName) && taskDescription.equals(mainTask.taskDescription) && status.equals(mainTask.status);
+        return id == mainTask.id && duration == mainTask.duration && Objects.equals(taskName, mainTask.taskName)
+                && Objects.equals(taskDescription, mainTask.taskDescription) && status == mainTask.status
+                && Objects.equals(startTime, mainTask.startTime);
     }
 
     public int hashCode() {
-        return Objects.hash(taskName, taskDescription, id, status);
+        return Objects.hash(taskName, taskDescription, id, status, duration, startTime);
     }
 }

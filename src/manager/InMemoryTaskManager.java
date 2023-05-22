@@ -1,5 +1,6 @@
 package manager;
 
+import exceptions.CreateException;
 import tasks.*;
 
 import java.time.Instant;
@@ -13,7 +14,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected Map<Integer, Subtask> subtasks = new HashMap<>();
     protected Map<Integer, Epic> epics = new HashMap<>();
     protected HistoryManager historyManager = Managers.getDefaultHistory();
-    protected TreeSet<MainTask> mainTasksTreeSet = new TreeSet<>(Comparator.comparing((MainTask task) -> task.getStartTime(), Comparator.nullsLast(Comparator.naturalOrder())));
+    protected TreeSet<MainTask> mainTasksTreeSet = new TreeSet<>(Comparator.comparing(MainTask::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
 
 
     //получения списков задач
@@ -55,11 +56,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void delSubtasks(){
         for (Epic epic : epics.values()) {
-            epic.getEpicWithSubtask().clear(); // как именно нужно обновить статус и время?
+            epic.clearEpicSubtasks();
         }
-        for (Integer subtaskId : subtasks.keySet()) {
-            mainTasksTreeSet.remove(subtasks.get(subtaskId)); // Удалить подзадачу из отсортированного списка
-            historyManager.remove(subtaskId);
+        for (Subtask subtaskId : subtasks.values()) {
+            mainTasksTreeSet.remove(subtaskId);
+            historyManager.remove(subtaskId.getId());
         }
         subtasks.clear();
     }
@@ -96,8 +97,7 @@ public class InMemoryTaskManager implements TaskManager {
             tasks.put(task.getId(), task);
             checkId(task.getId());
         } else {
-            tasks.put(oldTask.getId(), oldTask);
-            mainTasksTreeSet.add(oldTask);
+            throw new CreateException("Ошибка валидации");
         }
     }
 
@@ -117,10 +117,14 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtask.setId(++idTask); // Установка идентификатора
         Epic epic = epics.get(subtask.getEpicId());
+        if (!checkValidation(subtask)) {
+            throw new CreateException("Ошибка валидации");
+        }
         subtasks.put(subtask.getId(), subtask);
         epic.addSubToEpic(subtask);
         checkId(subtask.getId());
     }
+
 
 
 
@@ -137,14 +141,12 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        if (getPrioritizedTasks(task)) {
+        if (checkValidation(task)) {
             mainTasksTreeSet.remove(existingTask); // Удалить старую версию задачи из отсортированного списка
             mainTasksTreeSet.add(task); // Добавить обновленную задачу в отсортированный список
             tasks.put(taskId, task); // Обновить задачу в мапе
-            checkId(taskId);
         } else {
-            tasks.put(taskId, existingTask); // Восстановить старую версию задачи в мапе
-            mainTasksTreeSet.add(existingTask); // Добавить старую версию задачи в отсортированный список
+            throw new CreateException("Ошибка валидации");
         }
     }
 
@@ -174,6 +176,8 @@ public class InMemoryTaskManager implements TaskManager {
         ep.getEpicWithSubtask().remove(existingSubtask); // Удалить старую версию задачи из списка подзадач эпика
         ep.addSubToEpic(subtask); // Добавить обновленную задачу в список подзадач эпика
         subtasks.put(subtaskId, subtask); // Обновить задачу в мапе подзадач
+        mainTasksTreeSet.remove(existingSubtask); // Удалить старую версию задачи из отсортированного списка
+        mainTasksTreeSet.add(subtask); // Добавление обновленной задачи в отсортированный список
         checkId(subtaskId);
     }
 
@@ -187,7 +191,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteEpic(int id) {
-        Epic epic = epics.get(id);
+        Epic epic = epics.remove(id);
         historyManager.remove(id);
 
         for (Subtask subtask : epic.getEpicWithSubtask()) {
@@ -196,7 +200,6 @@ public class InMemoryTaskManager implements TaskManager {
             mainTasksTreeSet.remove(subtask); // Удалить подзадачу из отсортированного списка
         }
 
-        epics.remove(id);
     }
 
     @Override
@@ -204,7 +207,7 @@ public class InMemoryTaskManager implements TaskManager {
         Subtask subtask = subtasks.remove(id);
         Epic ep = epics.get(subtask.getEpicId());
         historyManager.remove(id);
-        ep.getEpicWithSubtask().remove(subtask);
+        ep.removeEpicWithSubtask(subtask);
         mainTasksTreeSet.remove(subtask); // Удалить подзадачу из отсортированного списка
         // не понял как обновить статус эпика и времени
     }
