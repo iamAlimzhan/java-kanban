@@ -90,8 +90,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         task.setId(++idTask);
-        Task oldTask = tasks.get(task.getId());
-        deleteTask(task.getId());
+        //deleteTask(task.getId());
         if (checkValidation(task)) {
             mainTasksTreeSet.add(task);
             tasks.put(task.getId(), task);
@@ -122,6 +121,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtasks.put(subtask.getId(), subtask);
         epic.addSubToEpic(subtask);
+        mainTasksTreeSet.add(subtask);
         checkId(subtask.getId());
     }
 
@@ -153,7 +153,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic){
         epics.put(epic.getId(), epic);
-        checkId(epic.getId());
     }
     @Override
     public void updateSubtask(Subtask subtask) {
@@ -169,7 +168,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         // Проверка на пересечение существующих задач
         if (!checkValidation(subtask)) {
-            return;
+            throw new CreateException("Ошибка валидации");
         }
 
         Epic ep = epics.get(subtask.getEpicId());
@@ -178,7 +177,6 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(subtaskId, subtask); // Обновить задачу в мапе подзадач
         mainTasksTreeSet.remove(existingSubtask); // Удалить старую версию задачи из отсортированного списка
         mainTasksTreeSet.add(subtask); // Добавление обновленной задачи в отсортированный список
-        checkId(subtaskId);
     }
 
     //Удаление по id
@@ -247,14 +245,13 @@ public class InMemoryTaskManager implements TaskManager {
 
              Instant startTime = task.getStartTime();
              Instant endTime = task.getEndTime();
-
-             if ((endTimeTask != null && !endTime.isAfter(startTimeTask)) || (endTime != null && !startTime.isAfter(endTimeTask))) {
+             if (endTime == null || startTime == null) {
+                 return true;
+             }
+             if (!endTime.isAfter(startTimeTask) || !startTime.isBefore(endTimeTask)) {
                  continue;
              }
-
-             if ((startTimeTask.isBefore(startTime) && startTimeTask.isAfter(endTime)) || (endTimeTask.isAfter(startTime) && endTimeTask.isBefore(endTime))) {
                  return false; // есть пересечение
-             }
          }
 
          return true; // пересечения нет

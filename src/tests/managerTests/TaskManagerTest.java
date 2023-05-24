@@ -1,5 +1,6 @@
 package tests.managerTests;
 
+import exceptions.CreateException;
 import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,7 @@ import tasks.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,7 +59,7 @@ abstract class TaskManagerTest <T extends TaskManager> {
     //Проверка получения отсортированного списка всех задач
     @Test
     public void getPrioritizedTasks() {
-        assertNotNull(taskManager.getPrioritizedTasks(mainTask), "Список задач не пуст");
+        assertNotNull(taskManager.getPrioritizedTasks(), "Список задач не пуст");
 
         Epic epic = new Epic("C", "C1", 1, TaskStatuses.NEW);
         taskManager.buildEpic(epic);
@@ -71,7 +73,7 @@ abstract class TaskManagerTest <T extends TaskManager> {
                 TaskStatuses.NEW,
                 1,
                 Instant.now().plusMillis(100),
-                Long.valueOf(1800000L));
+                Long.valueOf(1800L));
         taskManager.buildSubtask(subtask1);
 
         Subtask subtask2 = new Subtask("D2",
@@ -79,20 +81,20 @@ abstract class TaskManagerTest <T extends TaskManager> {
                 3,
                 TaskStatuses.NEW,
                 1,
-                Instant.now().plusMillis(300),
-                Long.valueOf(1800000L));
+                Instant.now().plusMillis(3000),
+                Long.valueOf(18000L));
         taskManager.buildSubtask(subtask2);
 
         Task task = new Task("A",
                 "A1",
                 1,
                 TaskStatuses.NEW,
-                Instant.now().plusMillis(200),
+                Instant.now().plusMillis(60000),
                 Long.valueOf(1800000L));
         taskManager.buildTask(task);
+        List<Task> sortedTasks = taskManager.getPrioritizedTasks();
 
-        assertEquals(false, taskManager.getPrioritizedTasks(mainTask),
-                "В отсортированном списке неверное количество задач");
+        assertEquals(0, sortedTasks.size(), "В отсортированном списке неверное количество задач");
     }
 
 
@@ -205,5 +207,37 @@ abstract class TaskManagerTest <T extends TaskManager> {
         task = taskManager.receivingTasks(1);
         assertEquals(1, taskManager.getHistory().size(),
                 "Не верный размер историй");
+    }
+
+    // Проверка метода валидации времени
+    @Test
+    public void validateTimeIntervals() {
+        LocalDateTime start1 = LocalDateTime.of(2023, 1, 1, 8, 0);
+        LocalDateTime end1 = LocalDateTime.of(2023, 1, 1, 10, 0);
+        LocalDateTime start2 = LocalDateTime.of(2023, 1, 1, 9, 0);
+        LocalDateTime end2 = LocalDateTime.of(2023, 1, 1, 11, 0);
+
+        Instant instantStart1 = start1.toInstant(ZoneOffset.UTC);
+        Instant instantEnd1 = end1.toInstant(ZoneOffset.UTC);
+        Instant instantStart2 = start2.toInstant(ZoneOffset.UTC);
+        Instant instantEnd2 = end2.toInstant(ZoneOffset.UTC);
+
+        // Creating a task with overlapping time interval
+        Task testTask = new Task("A", "AA", 1, TaskStatuses.NEW);
+        testTask.setStartTime(instantStart1);
+        testTask.setDuration(Duration.between(instantStart1, instantEnd1).toMillis());
+
+        // Adding an existing task with a conflicting time interval
+        taskManager.buildTask(testTask);
+
+        // Creating a new task with overlapping time interval
+        Task testTask2 = new Task("B", "BB", 2, TaskStatuses.NEW);
+        testTask2.setStartTime(instantStart2);
+        testTask2.setDuration(Duration.between(instantStart2, instantEnd2).toMillis());
+
+        // Asserting that CreateException is thrown
+        assertThrows(CreateException.class,
+                () -> taskManager.buildTask(testTask2),
+                "Новая задача не входит внутрь существующей");
     }
 }

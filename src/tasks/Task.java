@@ -17,4 +17,5 @@ public class Task extends MainTask{
     public TypeOfTask getType() {
         return TypeOfTask.TASK;
     }
+
 }
