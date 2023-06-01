@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.*;
 
 import static tasks.TaskStatuses.*;
-
 public class InMemoryTaskManager implements TaskManager {
     protected int idTask = 0;
     protected Map<Integer, Task> tasks = new HashMap<>();
@@ -255,6 +254,14 @@ public class InMemoryTaskManager implements TaskManager {
          }
 
          return true; // пересечения нет
+    }
+    public void updateSortedList(){
+        mainTasksTreeSet.clear();
+        for (Task value : tasks.values()) {
+            if(value.getType() != TypeOfTask.EPIC){
+                mainTasksTreeSet.add(value);
+            }
+        }
     }
 
 }

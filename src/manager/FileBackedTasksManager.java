@@ -57,13 +57,10 @@ import static tasks.TaskStatuses.NEW;
          TaskStatuses status = TaskStatuses.valueOf(lines[3]);
          String description = lines[4];
          Instant startTime = null;
-         Long duration = null;
          if(!lines[5].equals("null")) {
              startTime = Instant.ofEpochMilli(Long.parseLong(lines[5]));
          }
-         if(!lines[6].equals("null")) {
-             duration = Long.parseLong(lines[6]);
-         }
+         long duration = Long.parseLong(lines[6]);
          switch (type) {
              case TASK:
                  fileBackedTasksManager.tasks.put(id, new Task(name, description, id, status, startTime, duration));

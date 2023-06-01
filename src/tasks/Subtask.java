@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class Subtask extends MainTask {
     private int epicId;
+    private Epic epic;
     public Subtask(String taskName, String taskDescription, int id, TaskStatuses status, int epicId, Instant startTime, long duration) {
         super(taskName, taskDescription, id, status, startTime, duration);
         this.epicId = epicId;
@@ -21,6 +22,10 @@ public class Subtask extends MainTask {
 
     public void setEpicId(int epicId) {
         this.epicId = epicId;
+    }
+    public void setEpic(Epic epic){
+        this.epic = epic;
+        epicId = epic.getId();
     }
     @Override
     public TypeOfTask getType() {
