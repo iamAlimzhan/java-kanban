@@ -5,6 +5,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import manager.HTTPTasksManager;
 import manager.Managers;
+import tasks.Epic;
+import tasks.Subtask;
 import tasks.Task;
 import java.io.InputStream;
 
@@ -22,19 +24,19 @@ public class HttpTaskServer {
 
     //Конструктор класса
     public HttpTaskServer() throws IOException {
-        httpTasksManager = new HTTPTasksManager();    //Создание менеджера задач
+        httpTasksManager = new HTTPTasksManager("saveKey", "url");    //Создание менеджера задач
         httpServer = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
     }
 
     //Конструктор класса с заданием именем сохранения менеджера на сервере
     public HttpTaskServer(String saveKey) throws IOException {
-        httpTasksManager = new HTTPTasksManager(saveKey);    //Создание менеджера задач
+        httpTasksManager = new HTTPTasksManager(saveKey, "url");    //Создание менеджера задач
         httpServer = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
     }
 
     //Конструктор класса на основе загрузки образа менеджера с сервера
     public HttpTaskServer(String newKey, String loadKey) throws IOException {
-        httpTasksManager = HTTPTasksManager.loadingFromJson(loadKey, newKey);    //Создание менеджера задач
+        httpTasksManager = new HTTPTasksManager(newKey, loadKey, true);   //Создание менеджера задач
         httpServer = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         start();
     }
@@ -50,21 +52,33 @@ public class HttpTaskServer {
                         Map<Integer, Task> tasks = (Map<Integer, Task>) httpTasksManager.getTasks();
                         String answer = gson.toJson(tasks);
                         httpExchange.sendResponseHeaders(200, 0);
-
-                        try (OutputStream outputStream = httpExchange.getResponseBody()) {
-                            outputStream.write(answer.getBytes());
-                        }
+                        sendText(httpExchange, answer);
 
                     } else if (stringPath.startsWith("/tasks/task/?id=")) {
                         String[] id = stringPath.split("=");
                         Task task = httpTasksManager.receivingTasks(Integer.parseInt(id[1]));
                         String answer = gson.toJson(task);
                         httpExchange.sendResponseHeaders(200, 0);
+                        sendText(httpExchange, answer);
 
-                        try (OutputStream outputStream = httpExchange.getResponseBody()) {
-                            outputStream.write(answer.getBytes());
-                        }
-                    } else
+                    } else if (stringPath.equals("/tasks/epic/")) {
+                        Map<Integer, Epic> epics = (Map<Integer, Epic>) httpTasksManager.getEpics();
+                        String answer = gson.toJson(epics);
+                        httpExchange.sendResponseHeaders(200, 0);
+                        sendText(httpExchange, answer);
+                    } else if (stringPath.startsWith("/tasks/epic/?id=")) {
+                        String[] id = stringPath.split("=");
+                        Epic epic = httpTasksManager.receivingEpics(Integer.parseInt(id[1]));
+                        String answer = gson.toJson(epic);
+                        httpExchange.sendResponseHeaders(200, 0);
+                        sendText(httpExchange, answer);
+                    } else if (stringPath.startsWith("/tasks/subtask/?id=")) {
+                        String[] id = stringPath.split("=");
+                        Subtask subtask = httpTasksManager.receivingSubtasks(Integer.parseInt(id[1]));
+                        String answer = gson.toJson(subtask);
+                        httpExchange.sendResponseHeaders(200, 0);
+                        sendText(httpExchange, answer);
+                    }else
                         throw new RuntimeException("Такого пути нет");
                     break;
 

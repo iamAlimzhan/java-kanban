@@ -1,6 +1,7 @@
 package tests.managerTests;
 
 import com.google.gson.*;
+import manager.HTTPTasksManager;
 import manager.InMemoryTaskManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -219,5 +222,44 @@ class HttpTaskServerTest {
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         response = client.send(request, handler);
         assertFalse(response.body().isEmpty());
+    }
+    @Test
+    public void testLoadDataFromServer() {
+        // Создание объекта InMemoryTaskManager и заполнение его данными
+        HTTPTasksManager taskManager = new HTTPTasksManager("saveKey", "url");
+
+        // Загрузка данных с сервера
+        String serverUrl = "http://localhost:8080/";
+        HTTPTasksManager httpTaskManager = new HTTPTasksManager(serverUrl, url,true);
+
+        // Проверка совпадения списков задач
+        List<Task> tasksFromManager = taskManager.getTasks();
+        List<Task> tasksFromServer = httpTaskManager.getTasks();
+        assertEquals(tasksFromManager, tasksFromServer, "Список задач не совпадает");
+
+        // Проверка совпадения списков эпиков
+        List<Epic> epicsFromManager = taskManager.getEpics();
+        List<Epic> epicsFromServer = httpTaskManager.getEpics();
+        assertEquals(epicsFromManager, epicsFromServer, "Список эпиков не совпадает");
+
+        // Проверка совпадения списков подзадач
+        List<Subtask> subtasksFromManager = taskManager.getSubtasks();
+        List<Subtask> subtasksFromServer = httpTaskManager.getSubtasks();
+        assertEquals(subtasksFromManager, subtasksFromServer, "Список подзадач не совпадает");
+
+        // Проверка совпадения отсортированного списка
+        List<Task> sortedTasksFromManager = taskManager.getPrioritizedTasks();
+        List<Task> sortedTasksFromServer = httpTaskManager.getPrioritizedTasks();
+        assertEquals(sortedTasksFromManager, sortedTasksFromServer, "Отсортированный список задач не совпадает");
+
+        // Проверка совпадения истории
+        Map<Integer, List<Task>> historyFromManager = (Map<Integer, List<Task>>) taskManager.getHistory();
+        Map<Integer, List<Task>> historyFromServer = (Map<Integer, List<Task>>) httpTaskManager.getHistory();
+        assertEquals(historyFromManager, historyFromServer, "История не совпадает");
+
+        // Проверка значения поля idTask
+        int idTaskFromManager = taskManager.receivingTasks(task.getId()).getId();
+        int idTaskFromServer = httpTaskManager.receivingTasks(task.getId()).getId();
+        assertEquals(idTaskFromManager, idTaskFromServer, "Значение поля idTask не совпадает");
     }
 }

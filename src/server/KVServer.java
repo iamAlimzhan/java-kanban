@@ -43,7 +43,7 @@ public class KVServer {
 					h.sendResponseHeaders(400, 0);
 					return;
 				}
-				if (((data.get(key) == null) || !data.containsKey(key))) {
+				if (data.get(key) == null) {
 					System.out.println("Value по ключу пустой, либо не существует. Key указывается в пути: /load/{key}");
 					h.sendResponseHeaders(404, 0);
 					return;

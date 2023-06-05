@@ -35,7 +35,6 @@ class HTTPTasksManagerTest {
                     .create();
 
             KVTaskClient kvTaskClient = new KVTaskClient("http://localhost:8078/");
-            kvTaskClient.setKEY_API("DEBUG");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -44,7 +43,7 @@ class HTTPTasksManagerTest {
 
     @BeforeEach
     public void beforeEach() {
-        httpTaskManager = new HTTPTasksManager("http://localhost:8078/");
+        httpTaskManager = new HTTPTasksManager("http://localhost:8078/", "localhost");
     }
 
     @Test
@@ -55,8 +54,7 @@ class HTTPTasksManagerTest {
         httpTaskManager.buildEpic(epic);
         httpTaskManager.buildSubtask(subtask);
         httpTaskManager.buildTask(task);
-        HTTPTasksManager manager = new HTTPTasksManager("http://localhost:8078/");
-        manager.loadingFromJson("old","new");
+        HTTPTasksManager manager = new HTTPTasksManager("http://localhost:8078/", "localhost");
         assertEquals(task, manager.receivingTasks(3)); //не могу понять, как пофиксить эту ошибку
         assertEquals(epic, manager.receivingEpics(1));
         assertEquals(subtask, manager.receivingSubtasks(2));
@@ -72,8 +70,7 @@ class HTTPTasksManagerTest {
         httpTaskManager.buildTask(task);
         httpTaskManager.receivingTasks(3);
         httpTaskManager.receivingSubtasks(2);
-        HTTPTasksManager manager = new HTTPTasksManager("http://localhost:8078/");
-        manager.loadingFromJson("old", "new");
+        HTTPTasksManager manager = new HTTPTasksManager("http://localhost:8078/", "localhost");
         assertEquals(httpTaskManager.getHistory().size(), manager.getHistory().size()); // и здесь тоже
     }
 

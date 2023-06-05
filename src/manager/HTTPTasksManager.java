@@ -11,98 +11,85 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class HTTPTasksManager extends FileBackedTasksManager{
-    private static KVTaskClient kvTaskClient = new KVTaskClient("localhost");
+    private KVTaskClient client;
     private final String saveKey;
+    private final Gson gson;
 
-    public HTTPTasksManager(String saveKey) {
-        super(new File(""));
-        this.saveKey = saveKey;
+    public HTTPTasksManager(String saveKey, String url) {
+        this(saveKey, url, false);
     }
 
-    public HTTPTasksManager() {
+    public HTTPTasksManager(String saveKey,String url ,boolean load) {
         super(new File(""));
-        saveKey = "HTTPTaskManager";
+        this.saveKey = saveKey;
+        this.client = new KVTaskClient(url);
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                .registerTypeAdapter(Instant.class, new InstantAdapter())
+                .create();
+        if(load){
+            loadingFromJson(saveKey);
+        }
     }
 
 //сохранение на сервер
     @Override
     public void save() {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .registerTypeAdapter(Instant.class, new InstantAdapter())
-                .create();
         JsonObject output = new JsonObject();
         output.add("tasks", gson.toJsonTree(getTasks()));
+        // Сохранение подзадач
+        JsonArray subtaskArray = new JsonArray();
+        for (Subtask subtask : subtasks.values()) {
+            subtaskArray.add(gson.toJsonTree(subtask));
+        }
+        output.add("subtasks", subtaskArray);
+
+        // Сохранение эпиков
+        JsonArray epicArray = new JsonArray();
+        for (Epic epic : epics.values()) {
+            epicArray.add(gson.toJsonTree(epic));
+        }
+        output.add("epics", epicArray);
         JsonArray history = new JsonArray();
         output.add("history", history);
         for(MainTask task : historyManager.getHistory()){
             history.add(task.getId());
         }
-        kvTaskClient.put(saveKey, output.toString());
-    }
-
-    @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
-        save();
-    }
-
-    @Override
-    public void deleteTask(int id) {
-        super.deleteTask(id);
-        save();
-    }
-
-    @Override
-    public Task receivingTasks(int id) {
-        Task task =  super.receivingTasks(id);
-        save();
-        return task;
-    }
-
-    @Override
-    public void buildTask(Task task) {
-        super.buildTask(task);
-        save();
+        client.put(saveKey, output.toString());
     }
 //создание с помощью данных новый экземпляр сенеджера
-    public static  HTTPTasksManager loadingFromJson(String oldKey, String newKey){
-        HTTPTasksManager httpTasksManager = new HTTPTasksManager(newKey);
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .registerTypeAdapter(Instant.class, new InstantAdapter())
-                .create();
-        JsonElement element = JsonParser.parseString(kvTaskClient.load(oldKey));
-        if(!element.isJsonObject()){
-            System.out.println("ВЫвод не похож с тем, который ожидался :(");
-            return null;
-        }
+    private void loadingFromJson(String oldKey) {
+        JsonElement element = JsonParser.parseString(client.load(oldKey));
+        if (!element.isJsonObject()) {
+            System.out.println("Вывод не похож с тем, который ожидался :(");
+            return;
+    }
         JsonObject object = element.getAsJsonObject();
 
-
-        JsonArray jsonArray = object.getAsJsonArray("tasks");
-        for (JsonElement jsonElement : jsonArray) {
+    // Загрузка задач
+        JsonArray taskArray = object.getAsJsonArray("tasks");
+        for (JsonElement jsonElement : taskArray) {
             String typeOfTask = jsonElement.getAsJsonObject().get("type").getAsString();
-            switch(TypeOfTask.valueOf(typeOfTask)){
+            switch (TypeOfTask.valueOf(typeOfTask)) {
                 case TASK:
-                    httpTasksManager.buildTask(gson.fromJson(jsonElement, Task.class));
-                case EPIC:
-                    Epic epic = gson.fromJson(jsonElement, Epic.class);
-                    httpTasksManager.buildEpic(epic);
-                    for (Subtask subtask : epic.getEpicWithSubtask()) {
-                        subtask.setEpic(epic);
-                        httpTasksManager.subtasks.put(subtask.getId(), subtask);
-                    }
+                    buildTask(gson.fromJson(jsonElement, Task.class));
                     break;
-                default:
-                    System.out.println(typeOfTask + " ошибка типа задачи");
+                    case EPIC:
+                        Epic epic = gson.fromJson(jsonElement, Epic.class);
+                        buildEpic(epic);
+                        for (Subtask subtask : epic.getEpicWithSubtask()) {
+                            subtask.setEpic(epic);
+                            subtasks.put(subtask.getId(), subtask);
+                        }
+                        break;
+                        default:
+                            System.out.println(typeOfTask + " ошибка типа задачи");
             }
-        }
-        httpTasksManager.updateSortedList();
+    }
+        updateSortedList();
         JsonArray jsonArrayHist = object.getAsJsonArray("history");
         for (JsonElement jsonElementHist : jsonArrayHist) {
-            httpTasksManager.getTasks();
+            getTasks();
         }
-        return httpTasksManager;
     }
 }

@@ -1,5 +1,7 @@
 package server;
 
+import exceptions.ManagerSaveException;
+
 import javax.sound.sampled.Port;
 import java.io.IOException;
 import java.net.URI;
@@ -9,70 +11,72 @@ import java.net.http.HttpResponse;
 
 public class KVTaskClient {
     private final int PORT = 8078;
-    private  String KEY_API;
-    private String url;
-    private HttpClient client;
+    private final String keyApi;
+    private final String url;
+    private final HttpClient client;
 
     public KVTaskClient(String url) {
         this.url = url;
         this.client = HttpClient.newHttpClient();
-        this.KEY_API = register();
+        this.keyApi = register();
     }
 
-    public String register(){
+    private String register() {
         URI uri = URI.create("http://" + url + ":" + PORT + "/register");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
                 .build();
-        try{
+        try {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request, handler);
-            if (response.statusCode() == 200){
+            if (response.statusCode() == 200) {
                 return response.body();
+            } else {
+                throw new ManagerSaveException("Ошибка регистрации. Статус код: " + response.statusCode());
             }
-
-        } catch (IOException | InterruptedException exp){
-            System.out.println("Во время запроса произошла ошибка " + exp.getMessage());
+        } catch (IOException | InterruptedException exp) {
+            throw new ManagerSaveException("Ошибка при выполнении запроса: " + exp.getMessage());
         }
-        return "";
     }
 
-    public String load(String key){
-        URI uri = URI.create("http://" + url + ":" + PORT + "/load/" + key + "?API_KEY=" + KEY_API);
+
+    public String load(String key) {
+        URI uri = URI.create("http://" + url + ":" + PORT + "/load/" + key + "?API_KEY=" + keyApi);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .GET()
                 .build();
-        try{
+        try {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request, handler);
-            if(response.statusCode() == 200){
+            if (response.statusCode() == 200) {
                 return response.body();
+            } else if (response.statusCode() != 200){
+                throw new ManagerSaveException("Ошибка загрузки. Статус код: " + response.statusCode());
             }
-        }catch (IOException | InterruptedException exp){
-            System.out.println("Во время запроса произошла ошибка " + exp.getMessage());
+        } catch (IOException | InterruptedException exp) {
+            throw new ManagerSaveException("Ошибка при выполнении запроса: " + exp.getMessage());
         }
-        return "";
+        return key;
     }
 
-    public void put(String key, String json){
-        URI uri = URI.create("http://" + url + ":" + PORT + "/save/" + key + "?API_KEY=" + KEY_API);
+
+    public void put(String key, String json) {
+        URI uri = URI.create("http://" + url + ":" + PORT + "/save/" + key + "?API_KEY=" + keyApi);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
-        try{
+        try {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request, handler);
-            if(response.statusCode() != 200){
-                System.out.println("Код ответа " + response.statusCode());
+            if (response.statusCode() != 200) {
+                throw new ManagerSaveException("Ошибка сохранения. Статус код: " + response.statusCode());
             }
-        }catch (IOException | InterruptedException exp){
-            System.out.println("Во время запроса произошла ошибка " + exp.getMessage());
+        } catch (IOException | InterruptedException exp) {
+            throw new ManagerSaveException("Ошибка при выполнении запроса: " + exp.getMessage());
         }
     }
-    public void setKEY_API(String KEY_API){
-        this.KEY_API = KEY_API;
-    }
+
 }
