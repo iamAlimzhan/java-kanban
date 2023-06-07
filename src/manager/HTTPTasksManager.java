@@ -58,38 +58,47 @@ public class HTTPTasksManager extends FileBackedTasksManager{
         client.put(saveKey, output.toString());
     }
 //создание с помощью данных новый экземпляр сенеджера
-    private void loadingFromJson(String oldKey) {
-        JsonElement element = JsonParser.parseString(client.load(oldKey));
-        if (!element.isJsonObject()) {
-            System.out.println("Вывод не похож с тем, который ожидался :(");
-            return;
+private void loadingFromJson(String oldKey) {
+    JsonElement element = JsonParser.parseString(client.load(oldKey));
+    if (!element.isJsonObject()) {
+        System.out.println("Вывод не похож с тем, который ожидался :(");
+        return;
     }
-        JsonObject object = element.getAsJsonObject();
+    JsonObject object = element.getAsJsonObject();
 
     // Загрузка задач
-        JsonArray taskArray = object.getAsJsonArray("tasks");
-        for (JsonElement jsonElement : taskArray) {
-            String typeOfTask = jsonElement.getAsJsonObject().get("type").getAsString();
-            switch (TypeOfTask.valueOf(typeOfTask)) {
-                case TASK:
-                    buildTask(gson.fromJson(jsonElement, Task.class));
-                    break;
-                    case EPIC:
-                        Epic epic = gson.fromJson(jsonElement, Epic.class);
-                        buildEpic(epic);
-                        for (Subtask subtask : epic.getEpicWithSubtask()) {
-                            subtask.setEpic(epic);
-                            subtasks.put(subtask.getId(), subtask);
-                        }
-                        break;
-                        default:
-                            System.out.println(typeOfTask + " ошибка типа задачи");
-            }
-    }
-        updateSortedList();
-        JsonArray jsonArrayHist = object.getAsJsonArray("history");
-        for (JsonElement jsonElementHist : jsonArrayHist) {
-            getTasks();
+    JsonArray taskArray = object.getAsJsonArray("tasks");
+    for (JsonElement jsonElement : taskArray) {
+        String typeOfTask = jsonElement.getAsJsonObject().get("type").getAsString();
+        switch (TypeOfTask.valueOf(typeOfTask)) {
+            case TASK:
+                Task task = gson.fromJson(jsonElement, Task.class);
+                tasks.put(task.getId(), task);
+                getTasks().add(task);
+                historyManager.add(task); // Добавление задачи в историю
+                break;
+            case EPIC:
+                Epic epic = gson.fromJson(jsonElement, Epic.class);
+                epics.put(epic.getId(), epic);
+                for (Subtask subtask : epic.getEpicWithSubtask()) {
+                    subtasks.put(subtask.getId(), subtask);
+                }
+                historyManager.add(epic); // Добавление эпика в историю
+                break;
+            default:
+                System.out.println(typeOfTask + " ошибка типа задачи");
         }
     }
+
+    JsonArray jsonArrayHist = object.getAsJsonArray("history");
+    for (JsonElement jsonElementHist : jsonArrayHist) {
+        // Добавление задач/подзадач/эпиков в историю
+        int taskId = jsonElementHist.getAsInt();
+        MainTask task = tasks.get(taskId);
+        if (task != null) {
+            historyManager.add(task);
+        }
+    }
+}
+
 }

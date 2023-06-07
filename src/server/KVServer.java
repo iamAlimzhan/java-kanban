@@ -27,8 +27,7 @@ public class KVServer {
 		server.createContext("/load", this::load);
 	}
 
-	private void load(HttpExchange h) throws IOException{
-		// TODO Добавьте получение значения по ключу
+	private void load(HttpExchange h) throws IOException {
 		try {
 			System.out.println("\n/load");
 			if (!hasAuth(h)) {
@@ -43,12 +42,13 @@ public class KVServer {
 					h.sendResponseHeaders(400, 0);
 					return;
 				}
-				if (data.get(key) == null) {
+				final String value = data.get(key);
+				if (value == null) {
 					System.out.println("Value по ключу пустой, либо не существует. Key указывается в пути: /load/{key}");
 					h.sendResponseHeaders(404, 0);
 					return;
 				}
-				sendText(h, data.get(key));
+				sendText(h, value);
 				System.out.println("Значение для ключа " + key + " успешно загружено!");
 				h.sendResponseHeaders(200, 0);
 			} else {
@@ -59,6 +59,7 @@ public class KVServer {
 			h.close();
 		}
 	}
+
 
 	private void save(HttpExchange h) throws IOException {
 		try {
