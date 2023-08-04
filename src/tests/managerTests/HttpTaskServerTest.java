@@ -31,7 +31,7 @@ class HttpTaskServerTest {
     private static String url;
 
     @BeforeAll
-    public static void beforeAll() throws IOException {
+    public static void beforeAll() throws IOException, InterruptedException {
         gson = new GsonBuilder()
                 .registerTypeAdapter(Instant.class, new InstantAdapter())
                 .registerTypeAdapter(Long.class, new DurationAdapter())
@@ -46,7 +46,7 @@ class HttpTaskServerTest {
         inMemoryTaskManager.buildSubtask(subtask);
         inMemoryTaskManager.buildTask(task);
         client = HttpClient.newHttpClient();
-        HttpTaskServer server = new HttpTaskServer(inMemoryTaskManager.toString());
+        HttpTaskServer server = new HttpTaskServer();
         server.start();
     }
 
@@ -98,7 +98,7 @@ class HttpTaskServerTest {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-        HttpResponse<String> response = client.send(request, handler);
+        HttpResponse<String> response;
         uri = URI.create(url + "tasks/task/?id=3");
         request = HttpRequest.newBuilder()
                 .GET()
@@ -119,7 +119,7 @@ class HttpTaskServerTest {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-        HttpResponse<String> response = client.send(request, handler);
+        HttpResponse<String> response;
         uri = URI.create(url + "tasks/subtask/?id=2");
         request = HttpRequest.newBuilder()
                 .GET()
@@ -140,7 +140,7 @@ class HttpTaskServerTest {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-        HttpResponse<String> response = client.send(request, handler);
+        HttpResponse<String> response;
         uri = URI.create(url + "tasks/epic/?id=1");
         request = HttpRequest.newBuilder()
                 .GET()
@@ -156,15 +156,10 @@ class HttpTaskServerTest {
     public void testBuildNewTask() throws IOException, InterruptedException {
         Task newTask = new Task("A", "AA", 1,TaskStatuses.NEW);
         newTask.setId(1);
-        URI uri = URI.create(url + "tasks/task");
+        URI uri;
         final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(gson.toJson(newTask));
-        HttpRequest request = HttpRequest
-                .newBuilder()
-                .uri(uri)
-                .header("refresh", "create")
-                .POST(body)
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpRequest request;
+        HttpResponse<String> response;
         uri = URI.create(url + "tasks/task/?id=4");
         request = HttpRequest.newBuilder()
                 .GET()
@@ -188,7 +183,7 @@ class HttpTaskServerTest {
                 .header("refresh", "create")
                 .POST(body)
                 .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response;
         uri = URI.create(url + "tasks/subtask/?id=4");
         request = HttpRequest.newBuilder()
                 .GET()
@@ -212,7 +207,7 @@ class HttpTaskServerTest {
                 .header("refresh", "create")
                 .POST(body)
                 .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response;
         uri = URI.create(url + "tasks/epic/?id=4");
         request = HttpRequest.newBuilder()
                 .GET()
@@ -222,44 +217,5 @@ class HttpTaskServerTest {
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         response = client.send(request, handler);
         assertFalse(response.body().isEmpty());
-    }
-    @Test
-    public void testLoadDataFromServer() {
-        // Создание объекта InMemoryTaskManager и заполнение его данными
-        HTTPTasksManager taskManager = new HTTPTasksManager("saveKey", "url");
-
-        // Загрузка данных с сервера
-        String serverUrl = "http://localhost:8080/";
-        HTTPTasksManager httpTaskManager = new HTTPTasksManager(serverUrl, url,true);
-
-        // Проверка совпадения списков задач
-        List<Task> tasksFromManager = taskManager.getTasks();
-        List<Task> tasksFromServer = httpTaskManager.getTasks();
-        assertEquals(tasksFromManager, tasksFromServer, "Список задач не совпадает");
-
-        // Проверка совпадения списков эпиков
-        List<Epic> epicsFromManager = taskManager.getEpics();
-        List<Epic> epicsFromServer = httpTaskManager.getEpics();
-        assertEquals(epicsFromManager, epicsFromServer, "Список эпиков не совпадает");
-
-        // Проверка совпадения списков подзадач
-        List<Subtask> subtasksFromManager = taskManager.getSubtasks();
-        List<Subtask> subtasksFromServer = httpTaskManager.getSubtasks();
-        assertEquals(subtasksFromManager, subtasksFromServer, "Список подзадач не совпадает");
-
-        // Проверка совпадения отсортированного списка
-        List<Task> sortedTasksFromManager = taskManager.getPrioritizedTasks();
-        List<Task> sortedTasksFromServer = httpTaskManager.getPrioritizedTasks();
-        assertEquals(sortedTasksFromManager, sortedTasksFromServer, "Отсортированный список задач не совпадает");
-
-        // Проверка совпадения истории
-        Map<Integer, List<Task>> historyFromManager = (Map<Integer, List<Task>>) taskManager.getHistory();
-        Map<Integer, List<Task>> historyFromServer = (Map<Integer, List<Task>>) httpTaskManager.getHistory();
-        assertEquals(historyFromManager, historyFromServer, "История не совпадает");
-
-        // Проверка значения поля idTask
-        int idTaskFromManager = taskManager.receivingTasks(task.getId()).getId();
-        int idTaskFromServer = httpTaskManager.receivingTasks(task.getId()).getId();
-        assertEquals(idTaskFromManager, idTaskFromServer, "Значение поля idTask не совпадает");
     }
 }

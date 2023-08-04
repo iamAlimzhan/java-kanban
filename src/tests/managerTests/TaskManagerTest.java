@@ -92,9 +92,9 @@ abstract class TaskManagerTest <T extends TaskManager> {
                 Instant.now().plusMillis(60000),
                 Long.valueOf(1800000L));
         taskManager.buildTask(task);
-        List<Task> sortedTasks = taskManager.getPrioritizedTasks();
+        List<MainTask> sortedTasks = taskManager.getPrioritizedTasks();
 
-        assertEquals(0, sortedTasks.size(), "В отсортированном списке неверное количество задач");
+        assertEquals(5, sortedTasks.size(), "В отсортированном списке неверное количество задач");
     }
 
 
@@ -222,20 +222,16 @@ abstract class TaskManagerTest <T extends TaskManager> {
         Instant instantStart2 = start2.toInstant(ZoneOffset.UTC);
         Instant instantEnd2 = end2.toInstant(ZoneOffset.UTC);
 
-        // Creating a task with overlapping time interval
         Task testTask = new Task("A", "AA", 1, TaskStatuses.NEW);
         testTask.setStartTime(instantStart1);
         testTask.setDuration(Duration.between(instantStart1, instantEnd1).toMillis());
 
-        // Adding an existing task with a conflicting time interval
         taskManager.buildTask(testTask);
 
-        // Creating a new task with overlapping time interval
         Task testTask2 = new Task("B", "BB", 2, TaskStatuses.NEW);
         testTask2.setStartTime(instantStart2);
         testTask2.setDuration(Duration.between(instantStart2, instantEnd2).toMillis());
 
-        // Asserting that CreateException is thrown
         assertThrows(CreateException.class,
                 () -> taskManager.buildTask(testTask2),
                 "Новая задача не входит внутрь существующей");

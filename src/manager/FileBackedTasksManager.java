@@ -16,6 +16,8 @@ import static tasks.TaskStatuses.NEW;
     public FileBackedTasksManager(File file) {
         this.file = file;
     }
+
+     //метод для создания новой задачи и загрузки данных из указанного файла
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager fileManager = new FileBackedTasksManager(file);
         try (BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
@@ -35,6 +37,7 @@ import static tasks.TaskStatuses.NEW;
         }
         return fileManager;
     }
+     // метод для анализа данных истории из строки и добавления соответствующих задач
      private static void fromStringHis(String line, FileBackedTasksManager fileBackedTasksManager) {
          String[] fields = line.split(",");
          for (String field : fields) {
@@ -48,6 +51,7 @@ import static tasks.TaskStatuses.NEW;
              }
          }
      }
+     //метод для анализа данных из строки и создания соответствующих задач
      private static void fromString(String val, FileBackedTasksManager fileBackedTasksManager) {
          String[] lines = val.split(",");
          int id = Integer.parseInt(lines[0]);
@@ -85,7 +89,7 @@ import static tasks.TaskStatuses.NEW;
          }
      }
 
-
+     //метод отвечает за сохранение задач, эпиков и подзадач обратно в файл в формате CSV
      public void save() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
@@ -216,48 +220,4 @@ import static tasks.TaskStatuses.NEW;
         save();
          return task;
      }
-
-     /*public static void main(String[] args){
-        System.out.println("Поехали!");
-        File file = new File(("data.csv"));
-        FileBackedTasksManager manager = new FileBackedTasksManager(file);
-        Task task = new Task("A", "AA", NEW);
-        Task taskSecond = new Task("B", "BB", NEW);
-        Epic epic = new Epic("C", "CC");
-        Subtask subtask = new Subtask("C.1", "CC.1", DONE, 3);
-        Subtask subtaskSecond = new Subtask("C.2", "CC.2", NEW, 3);
-        Subtask subtaskThird = new Subtask("C.3", "CC.3", NEW, 3);
-        Epic epicSecond = new Epic("D", "DD");
-        //Task task2 = new Task("Тест", "Проверка", DONE);
-        manager.buildTask(task);
-        manager.buildTask(taskSecond);
-        manager.buildEpic(epic);
-        manager.buildEpic(epicSecond);
-        manager.buildSubtask(subtask);
-        manager.buildSubtask(subtaskSecond);
-        manager.buildSubtask(subtaskThird);
-        manager.receivingTasks(1);
-        manager.receivingTasks(1);
-        manager.receivingTasks(1);
-        manager.receivingTasks(2);
-        manager.receivingEpics(3);
-        manager.receivingSubtasks(5);
-        FileBackedTasksManager readManager = FileBackedTasksManager.loadFromFile(file);
-        //fileBackedTasksManager2.createTask(task2);
-        System.out.println(readManager.tasks);
-        System.out.println(manager.getHistory());
-        System.out.println(readManager.getHistory());
-
-        System.out.println("Проверка задач: " + manager.tasks.equals(readManager.tasks));
-        System.out.println("Проверка эпиков: " + manager.epics.equals(readManager.epics));
-        System.out.println("Проверка подзадач: " + manager.subtasks.equals(readManager.subtasks));
-        System.out.println("Проверка истории: " + manager.getHistory().equals(readManager.getHistory()));
-        System.out.println("manager.idTask: " + manager.idTask);
-        System.out.println("readManager.idTask: " + readManager.idTask);
-        System.out.println("Проверка истории айди: " + (manager.idTask == readManager.idTask));
-        System.out.println(manager.epics);
-        System.out.println(readManager.epics);
-        System.out.println(manager.getHistory());
-        System.out.println(readManager.getHistory());
-    }*/
 }

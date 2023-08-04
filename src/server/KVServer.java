@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 /**
@@ -27,6 +28,7 @@ public class KVServer {
 		server.createContext("/load", this::load);
 	}
 
+	// метод обрабатывает запросы GET к /load/{key}
 	private void load(HttpExchange h) throws IOException {
 		try {
 			System.out.println("\n/load");
@@ -42,15 +44,16 @@ public class KVServer {
 					h.sendResponseHeaders(400, 0);
 					return;
 				}
-				final String value = data.get(key);
-				if (value == null) {
-					System.out.println("Value по ключу пустой, либо не существует. Key указывается в пути: /load/{key}");
-					h.sendResponseHeaders(404, 0);
-					return;
+				//final String value = data.get(key);
+
+				String response = "[]";
+				if (data.containsKey(key)) {
+					response = data.get(key);
 				}
-				sendText(h, value);
+
+				sendText(h, response);
 				System.out.println("Значение для ключа " + key + " успешно загружено!");
-				h.sendResponseHeaders(200, 0);
+				//h.sendResponseHeaders(200, 0);
 			} else {
 				System.out.println("/load ждёт POST-запрос, а получил: " + h.getRequestMethod());
 				h.sendResponseHeaders(405, 0);
@@ -60,7 +63,39 @@ public class KVServer {
 		}
 	}
 
+	/*private void load(HttpExchange h) throws IOException {
+		try{
+			System.out.println("\n/load");
 
+			if(!hasAuth(h)){
+				System.out.println("Запрос не авторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+				h.sendResponseHeaders(403, 0);
+				return;
+			}
+			if (!"GET".equals(h.getRequestMethod())){
+				System.out.println("/load ждет GET-запрос, а получил: " + h.getRequestMethod());
+				h.sendResponseHeaders(405, 0);
+			} else {
+				String key = h.getRequestURI().getPath().substring("/load/".length());
+
+				if(key.isEmpty()){
+					System.out.println("Key для загрузки пустой. key указывается в пути: /load/{key}");
+					h.sendResponseHeaders(400, 0);
+					return;
+				}
+				String responseStr = "[]";
+				if(data.containsKey(key)){
+					responseStr = data.get(key);
+				}
+				System.out.println(String.format("Отправляем ответ: %s" , responseStr));
+				sendText(h ,responseStr);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}*/
+
+	// метод обрабатывает запросы POST к /save/{key}
 	private void save(HttpExchange h) throws IOException {
 		try {
 			System.out.println("\n/save");
@@ -94,6 +129,7 @@ public class KVServer {
 		}
 	}
 
+	//метод обрабатывает запросы GET к /register
 	private void register(HttpExchange h) throws IOException {
 		try {
 			System.out.println("\n/register");
@@ -114,20 +150,26 @@ public class KVServer {
 		System.out.println("API_TOKEN: " + apiToken);
 		server.start();
 	}
+	public void stop(){
+		server.stop(0);
+	}
 
 	private String generateApiToken() {
 		return "" + System.currentTimeMillis();
 	}
 
+	//метод проверяет, содержит ли HTTP-запрос правильный API_TOKEN
 	protected boolean hasAuth(HttpExchange h) {
 		String rawQuery = h.getRequestURI().getRawQuery();
 		return rawQuery != null && (rawQuery.contains("API_TOKEN=" + apiToken) || rawQuery.contains("API_TOKEN=DEBUG"));
 	}
 
+	//метод считывает тело запроса
 	protected String readText(HttpExchange h) throws IOException {
 		return new String(h.getRequestBody().readAllBytes(), UTF_8);
 	}
 
+	// метод отправляет предоставленное text в качестве ответа
 	protected void sendText(HttpExchange h, String text) throws IOException {
 		byte[] resp = text.getBytes(UTF_8);
 		h.getResponseHeaders().add("Content-Type", "application/json");

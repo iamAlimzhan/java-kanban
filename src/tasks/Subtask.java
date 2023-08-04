@@ -30,6 +30,7 @@ public class Subtask extends MainTask {
         return TypeOfTask.SUBTASK;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -42,5 +43,12 @@ public class Subtask extends MainTask {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), epicId);
+    }
+
+    @Override
+    public String toString() {
+        return "tasks.Subtask{" +
+                super.toString() +
+                '}';
     }
 }

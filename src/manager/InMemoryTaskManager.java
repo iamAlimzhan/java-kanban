@@ -13,7 +13,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected Map<Integer, Subtask> subtasks = new HashMap<>();
     protected Map<Integer, Epic> epics = new HashMap<>();
     protected HistoryManager historyManager = Managers.getDefaultHistory();
-    protected TreeSet<MainTask> mainTasksTreeSet = new TreeSet<>(Comparator.comparing(MainTask::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
+    protected TreeSet<MainTask> mainTasksTreeSet = new TreeSet<>(Comparator.comparing(MainTask::getStartTime,
+            Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(MainTask::getId));
 
 
     //получения списков задач
@@ -89,7 +90,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         task.setId(++idTask);
-        //deleteTask(task.getId());
+        deleteTask(task.getId());
         if (checkValidation(task)) {
             mainTasksTreeSet.add(task);
             tasks.put(task.getId(), task);
@@ -105,8 +106,13 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         epic.setId(++idTask);
-        epics.put(epic.getId(), epic);
-        checkId(epic.getId());
+        if (checkValidation(epic)) {
+            mainTasksTreeSet.add(epic);
+            epics.put(epic.getId(), epic);
+            checkId(epic.getId());
+        } else {
+            throw new CreateException("Ошибка валидации");
+        }
     }
     @Override
     public void buildSubtask(Subtask subtask) {
@@ -123,9 +129,6 @@ public class InMemoryTaskManager implements TaskManager {
         mainTasksTreeSet.add(subtask);
         checkId(subtask.getId());
     }
-
-
-
 
     //обновление
     @Override
@@ -237,7 +240,7 @@ public class InMemoryTaskManager implements TaskManager {
          Instant startTimeTask = mainTask.getStartTime();
          Instant endTimeTask = mainTask.getEndTime();
 
-         for (MainTask task : mainTasksTreeSet) {
+         for (MainTask task : getPrioritizedTasks()) {
              if (task.getId() == mainTask.getId()) {
                  continue;
              }
@@ -262,6 +265,15 @@ public class InMemoryTaskManager implements TaskManager {
                 mainTasksTreeSet.add(value);
             }
         }
+    }
+    @Override
+    public List<MainTask> getPrioritizedTasks(){
+        List<MainTask> tasksAndSubtasksList = new ArrayList<>();
+        tasksAndSubtasksList.addAll(tasks.values());
+        tasksAndSubtasksList.addAll(epics.values());
+        tasksAndSubtasksList.addAll(subtasks.values());
+        mainTasksTreeSet.addAll(tasksAndSubtasksList);
+        return new ArrayList<>(mainTasksTreeSet);
     }
 
 }

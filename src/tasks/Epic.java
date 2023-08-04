@@ -12,16 +12,21 @@ public class Epic extends MainTask {
     private Instant endTime;
     public Epic(String taskName, String taskDescription, int id, TaskStatuses status, Instant startTime, long duration) {
         super(taskName, taskDescription, id, status,startTime,duration);
+
     }
 
     public Epic(String taskName, String taskDescription, int id, TaskStatuses status) {
         super(taskName, taskDescription, id, status);
     }
 
-    public void addSubToEpic(Subtask subtask){
-        epicWithSubtask.add(subtask);
-        setStatus();
-        setEpicTime();
+    public void addSubToEpic(Subtask subtask) throws NullPointerException{
+        if (subtask != null) {
+            epicWithSubtask.add(subtask);
+            setStatus();
+            setEpicTime();
+        } else {
+            throw new NullPointerException("Subtask cannot be null");
+        }
     }
 
     public List<Subtask> getEpicWithSubtask() {
@@ -119,4 +124,5 @@ public class Epic extends MainTask {
     public int hashCode() {
         return Objects.hash(super.hashCode(), epicWithSubtask, endTime);
     }
+
 }

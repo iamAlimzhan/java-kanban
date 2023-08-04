@@ -1,4 +1,5 @@
 package manager;
+
 import tasks.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,5 @@ public interface TaskManager {
     List<Subtask> receivingSubInEpic(int id);
     List<MainTask> getHistory();
 
-    default List<Task> getPrioritizedTasks() {
-        return new ArrayList<>();
-    }
-
+    List<MainTask> getPrioritizedTasks();
 }
