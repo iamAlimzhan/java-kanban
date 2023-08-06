@@ -18,42 +18,61 @@ public class HTTPTasksManager extends FileBackedTasksManager{
     Gson gson = new Gson();
 
 
-    public HTTPTasksManager(String url) {
+    public HTTPTasksManager(String url, boolean isLoad) {
         super(new File(""));
         this.client = new KVTaskClient(url);
-        save();
-        load();
+
+        if (isLoad) {
+            try {
+                load();
+            } catch (ManagerSaveException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public HTTPTasksManager(File file) {
-        super(file);
-    }
 
     public void load() throws ManagerSaveException {
         String tasksForLoad = client.load("task");
-        System.out.println(tasksForLoad);
-        if(tasksForLoad != null){
+        int maxId = 0;
+        if (tasksForLoad != null) {
             ArrayList<Task> taskList = gson.fromJson(tasksForLoad, new TypeToken<ArrayList<Task>>() {
             }.getType());
             for (Task task : taskList) {
-                buildTask(task);
+                int id = task.getId();
+                tasks.put(id, task);
+                if (maxId < id) {
+                    maxId = id;
+                }
             }
         }
         String epicsForLoad = client.load("epic");
-        if(epicsForLoad != null){
+        if (epicsForLoad != null) {
             ArrayList<Epic> epicList = gson.fromJson(epicsForLoad, new TypeToken<ArrayList<Epic>>() {
             }.getType());
             for (Epic epic : epicList) {
-                buildEpic(epic);
+                int id = epic.getId();
+                epics.put(id, epic);
+                if (maxId < id) {
+                    maxId = id;
+                }
             }
         }
         String subtasksForLoad = client.load("subtask");
-        if(subtasksForLoad != null){
-            ArrayList<Subtask> subList = gson.fromJson(subtasksForLoad, new TypeToken<ArrayList<Subtask>>(){}.getType());
+        if (subtasksForLoad != null) {
+            ArrayList<Subtask> subList = gson.fromJson(subtasksForLoad, new TypeToken<ArrayList<Subtask>>() {
+            }.getType());
             for (Subtask subtask : subList) {
-                buildSubtask(subtask);
+                int id = subtask.getId();
+                subtasks.put(id, subtask);
+                if (maxId < id) {
+                    maxId = id;
+                }
             }
         }
+        idTask = maxId;
+        mainTasksTreeSet.addAll(tasks.values());
+        mainTasksTreeSet.addAll(subtasks.values());
         String historyForLoad = client.load("history");
         if(historyForLoad != null){
             ArrayList<Task> historyList = gson.fromJson(historyForLoad, new TypeToken<ArrayList<Task>>() {

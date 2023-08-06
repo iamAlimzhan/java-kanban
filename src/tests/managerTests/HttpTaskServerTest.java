@@ -3,6 +3,7 @@ package tests.managerTests;
 import com.google.gson.*;
 import manager.HTTPTasksManager;
 import manager.InMemoryTaskManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import server.DurationAdapter;
@@ -29,9 +30,10 @@ class HttpTaskServerTest {
     private static Subtask subtask;
     private static HttpClient client;
     private static String url;
+    private static HttpTaskServer server;
 
     @BeforeAll
-    public static void beforeAll() throws IOException, InterruptedException {
+    public static void beforeAll() throws IOException{
         gson = new GsonBuilder()
                 .registerTypeAdapter(Instant.class, new InstantAdapter())
                 .registerTypeAdapter(Long.class, new DurationAdapter())
@@ -46,8 +48,13 @@ class HttpTaskServerTest {
         inMemoryTaskManager.buildSubtask(subtask);
         inMemoryTaskManager.buildTask(task);
         client = HttpClient.newHttpClient();
-        HttpTaskServer server = new HttpTaskServer();
+        server = new HttpTaskServer();
         server.start();
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        server.stop();
     }
 
     @Test

@@ -60,9 +60,17 @@ public class HttpTaskServer {
                     } else if (stringPath.startsWith("/tasks/task/?id=" + id)) {
                         System.out.println("Getting a task by id");
                         String response = gson.toJson(httpTasksManager.receivingTasks(Integer.parseInt(id[1])));
-                        httpExchange.sendResponseHeaders(200,0);
-                        try (OutputStream os = httpExchange.getResponseBody()){
-                            os.write(response.getBytes());
+                        if (response != null) {
+                            httpExchange.sendResponseHeaders(200, 0);
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(response.getBytes());
+                            }
+                        } else {
+                            String notFoundResponse = "Task not found";
+                            httpExchange.sendResponseHeaders(404, notFoundResponse.length());
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(notFoundResponse.getBytes());
+                            }
                         }
                     } else if (stringPath.equals("/tasks/epic/")) {
                         System.out.println("Getting a list of all epics");
@@ -74,16 +82,32 @@ public class HttpTaskServer {
                     } else if (stringPath.startsWith("/tasks/epic/?id=" + id)) {
                         System.out.println("Getting an epic by id");
                         String response = gson.toJson(httpTasksManager.receivingEpics(Integer.parseInt(id[1])));
-                        httpExchange.sendResponseHeaders(200,0);
-                        try (OutputStream os = httpExchange.getResponseBody()){
-                            os.write(response.getBytes());
+                        if (response != null) {
+                            httpExchange.sendResponseHeaders(200, 0);
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(response.getBytes());
+                            }
+                        } else {
+                            String notFoundResponse = "Task not found";
+                            httpExchange.sendResponseHeaders(404, notFoundResponse.length());
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(notFoundResponse.getBytes());
+                            }
                         }
                     } else if (stringPath.startsWith("/tasks/subtask/?id=" + id)) {
                         System.out.println("Getting a subtask by id");
                         String response = gson.toJson(httpTasksManager.receivingSubtasks(Integer.parseInt(id[1])));
-                        httpExchange.sendResponseHeaders(200,0);
-                        try (OutputStream os = httpExchange.getResponseBody()){
-                            os.write(response.getBytes());
+                        if (response != null) {
+                            httpExchange.sendResponseHeaders(200, 0);
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(response.getBytes());
+                            }
+                        } else {
+                            String notFoundResponse = "Task not found";
+                            httpExchange.sendResponseHeaders(404, notFoundResponse.length());
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(notFoundResponse.getBytes());
+                            }
                         }
                     } else if (stringPath.equals("/tasks/subtask/")) {
                         System.out.println("Getting a list of all subtasks");
@@ -110,50 +134,35 @@ public class HttpTaskServer {
                     } else if (stringPath.equals("/tasks/subtask/epic/?id=" + id)) {
                         System.out.println("Getting Epic Subtasks");
                         String response = gson.toJson(httpTasksManager.receivingSubInEpic(Integer.parseInt(id[1])));
-                        httpExchange.sendResponseHeaders(200, 0);
-                        try (OutputStream os = httpExchange.getResponseBody()) {
-                            os.write(response.getBytes());
+                        if (response != null) {
+                            httpExchange.sendResponseHeaders(200, 0);
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(response.getBytes());
+                            }
+                        } else {
+                            String notFoundResponse = "Task not found";
+                            httpExchange.sendResponseHeaders(404, notFoundResponse.length());
+                            try (OutputStream os = httpExchange.getResponseBody()) {
+                                os.write(notFoundResponse.getBytes());
+                            }
                         }
 
                     } else {
                         throw new RuntimeException("There is no such way");
                     }
-                    /*if(stringPath.equals("/tasks")){
-                        System.out.println("по приоритету");
-                        String response = gson.toJson(httpTasksManager.getPrioritizedTasks());
-                        httpExchange.sendResponseHeaders(200, 0);
-                        try(OutputStream os = httpExchange.getResponseBody()){
-                            os.write(response.getBytes());
-                        }
-                        //httpExchange.close();
-                        break;
-                    }*/
 
                 case "POST":
-                    /*String jsonToString = readText(httpExchange);
-                    if (jsonToString.isEmpty()) {
-                        return;
-                    }
-                    JsonElement element = JsonParser.parseString(jsonToString);
-                    if (!element.isJsonObject()) {
-                        throw new RuntimeException("Не является json объектом");
-                    }
-
-                    JsonObject object = element.getAsJsonObject();
-                    Task task = gson.fromJson(object, Task.class);
-                    Map<Integer, Task> tasks = (Map<Integer, Task>) httpTasksManager.getTasks();
-                    if (stringPath.equals("/tasks/task/")) {
-                        if (tasks.containsValue(task)) {
-                            httpTasksManager.updateTask(task);
-                        } else {
-                            httpTasksManager.buildTask(task);
-                        }
-                    }
-                    httpExchange.sendResponseHeaders(201, 0);
-                    httpExchange.close();
-                    break;*/
                     InputStream inputStream = httpExchange.getRequestBody();
                     String body = new String(inputStream.readAllBytes(), CHARSET);
+                    if (body.isEmpty()) {
+                        String response = "Пустое тело";
+                        httpExchange.sendResponseHeaders(400, response.length());
+                        try (OutputStream os = httpExchange.getResponseBody()) {
+                            os.write(response.getBytes());
+                        }
+                        httpExchange.close();
+                        return;
+                    }
                     if (stringPath.equals("/tasks/task/")) {
                         System.out.println("Build task");
                         httpTasksManager.buildTask(gson.fromJson(body, Task.class));
@@ -264,17 +273,6 @@ public class HttpTaskServer {
                     }
                     httpExchange.close();
                     break;
-                    /*if (stringPath.equals("/tasks/task/")){
-                        System.out.println("del all tasks");
-                        httpTasksManager.delTasks();
-                        String response = "tasks deleted";
-                        httpExchange.sendResponseHeaders(200,0);
-                        try(OutputStream os = httpExchange.getResponseBody()){
-                            os.write(response.getBytes());
-                        }
-                        httpExchange.close();
-                        break;
-                }*/
                 default:
                     String response = "There is no such way";
                     httpExchange.sendResponseHeaders(400, 0);

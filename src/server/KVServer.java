@@ -44,7 +44,6 @@ public class KVServer {
 					h.sendResponseHeaders(400, 0);
 					return;
 				}
-				//final String value = data.get(key);
 
 				String response = "[]";
 				if (data.containsKey(key)) {
@@ -53,7 +52,6 @@ public class KVServer {
 
 				sendText(h, response);
 				System.out.println("Значение для ключа " + key + " успешно загружено!");
-				//h.sendResponseHeaders(200, 0);
 			} else {
 				System.out.println("/load ждёт POST-запрос, а получил: " + h.getRequestMethod());
 				h.sendResponseHeaders(405, 0);
@@ -62,38 +60,6 @@ public class KVServer {
 			h.close();
 		}
 	}
-
-	/*private void load(HttpExchange h) throws IOException {
-		try{
-			System.out.println("\n/load");
-
-			if(!hasAuth(h)){
-				System.out.println("Запрос не авторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
-				h.sendResponseHeaders(403, 0);
-				return;
-			}
-			if (!"GET".equals(h.getRequestMethod())){
-				System.out.println("/load ждет GET-запрос, а получил: " + h.getRequestMethod());
-				h.sendResponseHeaders(405, 0);
-			} else {
-				String key = h.getRequestURI().getPath().substring("/load/".length());
-
-				if(key.isEmpty()){
-					System.out.println("Key для загрузки пустой. key указывается в пути: /load/{key}");
-					h.sendResponseHeaders(400, 0);
-					return;
-				}
-				String responseStr = "[]";
-				if(data.containsKey(key)){
-					responseStr = data.get(key);
-				}
-				System.out.println(String.format("Отправляем ответ: %s" , responseStr));
-				sendText(h ,responseStr);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}*/
 
 	// метод обрабатывает запросы POST к /save/{key}
 	private void save(HttpExchange h) throws IOException {

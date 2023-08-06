@@ -31,7 +31,7 @@ public class KVTaskClient {
             if(statusCode == 200 ) {
                 this.apiToken = response.body();
             } else {
-                System.out.println("Ошибка регистрации. Код: " + statusCode + ". Тело: " + response.body());
+                throw new ManagerSaveException("Ошибка регистрации. Код: " + statusCode + ". Тело: " + response.body());
             }
         } catch (IOException | InterruptedException e) {
             throw new ManagerSaveException("Что-то пошло не так: " + e.getMessage());
@@ -50,16 +50,8 @@ public class KVTaskClient {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request,handler);
             int status = response.statusCode();
-            if(status >= 200 && status <= 299) {
+            if(status == 200) {
                 return ( response.body());
-            }
-            if(status >= 400 && status <= 499) {
-                return ("Сервер сообщил о проблеме с запросом. Код состояния: " + status + ". Тело запроса: "
-                        + response.body());
-            }
-            if(status >= 500 && status <= 599) {
-                return ("Сервер сообщил о внутренней проблеме и невозможности обработать запрос." + " Код состояния: "
-                        + status + ". Тело запроса: " + response.body());
             } else {
                 throw new ManagerSaveException("Что-то пошло не так. Сервер вернул код состояния: " + status
                         + ". Тело запроса: " + response.body());
@@ -82,18 +74,8 @@ public class KVTaskClient {
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request,handler);
             int status = response.statusCode();
-            if(status >= 200 && status <= 299) {
-                System.out.println("Запрос успешно обработан! Тело запроса: " + response.body() + ". Код состояния: "
-                        +  status);
-            }
-            else if(status >= 400 && status <= 499) {
-                System.out.println("Проблема с запросом. Тело запроса: " +response.body() + ". Код состояния: "
-                        +  status);
-            }
-            else if(status >= 500 && status <= 599) {
-                System.out.println("Невозможно обработать запрос из за внутреней проблемы." + " Тело запроса: "
-                        + response.body() + ". Код состояния: "
-                        +  status);
+            if(status == 200) {
+                System.out.println(response.body());
             } else {
                 throw new ManagerSaveException("Что-то пошло не так. Сервер вернул код состояния: " + status
                         + ". Тело запроса: " + response.body());
